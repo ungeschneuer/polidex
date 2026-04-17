@@ -164,7 +164,7 @@ interface AwParliamentPeriodList {
  * automatically without code changes.
  */
 async function fetchParliamentPeriods(): Promise<Array<{ periodId: number; wp: number; activeOnly: boolean }>> {
-  const url = `${AW_API}/parliament-periods?parliament=${AW_BUNDESTAG_PARLIAMENT}&limit=100`;
+  const url = `${AW_API}/parliament-periods?parliament=${AW_BUNDESTAG_PARLIAMENT}&pager_limit=100`;
   const res = await fetchJSON<AwParliamentPeriodList>(url);
 
   // Keep only full mandate periods (labels like "Bundestag 2005 - 2009").

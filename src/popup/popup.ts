@@ -296,6 +296,7 @@ function buildCandidateItem(candidate: MatchCandidate, isCaught: boolean): HTMLL
     img.alt = '';
     img.width = 40;
     img.height = 40;
+    img.onerror = () => { avatar.textContent = '\u{1F464}'; };
     avatar.appendChild(img);
   } else {
     avatar.textContent = '\u{1F464}';
@@ -607,6 +608,7 @@ function buildDexItem(entry: PokedexEntry): HTMLLIElement {
     img.alt = '';
     img.width = 32;
     img.height = 32;
+    img.onerror = () => { avatar.textContent = '\u{1F464}'; };
     avatar.appendChild(img);
   } else {
     avatar.textContent = '\u{1F464}';
@@ -667,6 +669,7 @@ function buildUncaughtDexItem(p: PoliticianData): HTMLLIElement {
     img.alt = '';
     img.width = 32;
     img.height = 32;
+    img.onerror = () => { avatar.textContent = '\u{1F464}'; };
     avatar.appendChild(img);
   } else {
     avatar.textContent = '\u{1F464}';
@@ -760,6 +763,12 @@ function showCard(cfg: CardConfig) {
     img.className = 'card-img';
     img.src = cfg.imageUrl;
     img.alt = '';
+    img.onerror = () => {
+      const ph = document.createElement('div');
+      ph.className = 'card-img-placeholder';
+      ph.textContent = '\u{1F464}';
+      img.replaceWith(ph);
+    };
     detailCard.appendChild(img);
   } else {
     const ph = document.createElement('div');

@@ -36,7 +36,7 @@ module.exports = (env, argv) => ({
   },
   plugins: [
     new webpack.DefinePlugin({
-      __POLIDEX_SERVER_URL__: JSON.stringify(process.env.POLIDEX_SERVER_URL ?? 'http://localhost:3000'),
+      __POLIDEX_SERVER_URL__: JSON.stringify(process.env.POLIDEX_SERVER_URL ?? 'https://ungeschneuer.github.io/polidex'),
     }),
     new MiniCssExtractPlugin({ filename: '[name].css' }),
     new CopyPlugin({
