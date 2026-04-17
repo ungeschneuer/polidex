@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Polidex</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="app">
+
+    <!-- Header -->
+    <header class="header">
+      <span class="logo">POLIDEX</span>
+      <button class="tab-btn active" data-tab="scan">Scan</button>
+      <button class="tab-btn" data-tab="dex">Sammlung</button>
+      <button id="btn-help" class="btn-help" title="Spielregeln">?</button>
+    </header>
+
+    <!-- ── Tab: Scan ── -->
+    <div id="tab-scan" class="tab active">
+      <div class="scan-area">
+        <div class="scan-top">
+          <button id="btn-scan" class="btn btn-primary btn-scan">
+            <span class="btn-icon">&#x25B6;</span>
+            SEITE SCANNEN
+          </button>
+          <div id="streak-display" class="streak-display hidden">
+            <span id="streak-flame">&#x1F525;</span>
+            <span id="streak-count" class="streak-count"></span>
+          </div>
+        </div>
+        <div id="scan-status" class="scan-status"></div>
+        <div id="sync-info" class="sync-info">
+          <span id="sync-label" class="sync-label"></span>
+          <button id="btn-sync" class="btn btn-sync hidden">JETZT SYNC</button>
+        </div>
+      </div>
+
+      <!-- Results -->
+      <div id="results" class="results hidden">
+        <div class="results-header">
+          <span id="results-count" class="results-count"></span>
+          <span id="article-badge" class="badge"></span>
+        </div>
+        <ul id="candidate-list" class="candidate-list"></ul>
+      </div>
+
+      <!-- Empty state -->
+      <div id="empty-state" class="empty-state hidden">
+        <div class="pixel-art-icon">&#x1F4F0;</div>
+        <p>Keine Politiker auf dieser Seite gefunden.</p>
+      </div>
+    </div>
+
+    <!-- ── Tab: Dex ── -->
+    <div id="tab-dex" class="tab hidden">
+      <div class="dex-header">
+        <div class="dex-progress">
+          <span id="dex-count" class="dex-count">0 / 0</span>
+          <div class="dex-progress-bar-wrap">
+            <div id="dex-progress-bar" class="dex-progress-bar" style="width:0%"></div>
+          </div>
+        </div>
+        <div class="dex-actions">
+          <button id="btn-export" class="btn btn-secondary btn-sm">EXPORTIEREN</button>
+          <button id="btn-import" class="btn btn-secondary btn-sm">IMPORTIEREN</button>
+          <input id="import-file" type="file" accept=".json" class="hidden">
+        </div>
+      </div>
+
+      <!-- Faction stats -->
+      <details id="faction-stats-section" class="faction-stats-section">
+        <summary class="faction-stats-toggle">Parteien</summary>
+        <div id="faction-stats" class="faction-stats"></div>
+      </details>
+
+      <!-- Achievements -->
+      <details id="achievements-section" class="achievements-section">
+        <summary class="achievements-toggle">Errungenschaften</summary>
+        <div id="achievements-grid" class="achievements-grid"></div>
+      </details>
+
+      <div class="dex-search-bar">
+        <input id="dex-search" type="search" class="dex-search" placeholder="Name oder Partei suchen..." autocomplete="off" spellcheck="false">
+        <select id="dex-sort" class="dex-sort" title="Sortierung">
+          <option value="recent">Zuletzt</option>
+          <option value="level">Level</option>
+          <option value="name">A–Z</option>
+          <option value="uncaught">Nicht gefangen</option>
+          <option value="longevity">Erfahrung</option>
+        </select>
+      </div>
+      <ul id="dex-list" class="dex-list"></ul>
+      <div id="dex-empty" class="empty-state hidden">
+        <div class="pixel-art-icon">&#x1F50D;</div>
+        <p>Deine Sammlung ist leer.<br>Scanne Nachrichtenartikel, um Politiker zu fangen!</p>
+      </div>
+      <div id="dex-no-results" class="empty-state hidden">
+        <div class="pixel-art-icon">&#x2205;</div>
+        <p>Keine Ergebnisse gefunden.</p>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Achievement toast -->
+  <div id="achievement-toast" class="achievement-toast hidden">
+    <div class="achievement-toast-inner">
+      <span class="achievement-toast-icon">&#x1F3C6;</span>
+      <div>
+        <div class="achievement-toast-title">Errungenschaft!</div>
+        <div id="achievement-toast-name" class="achievement-toast-name"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Card detail overlay -->
+  <div id="card-overlay" class="card-overlay hidden">
+    <div class="card" id="detail-card"></div>
+    <button id="btn-close-card" class="btn btn-secondary">SCHLIESSEN</button>
+  </div>
+
+  <!-- Help overlay -->
+  <div id="help-overlay" class="card-overlay hidden">
+    <div class="help-panel">
+      <h2 class="help-title">Spielregeln</h2>
+
+      <section class="help-section">
+        <h3 class="help-section-title">&#x1F50D; Scannen</h3>
+        <p>Öffne einen Nachrichtenartikel und klicke <strong>Seite scannen</strong>. Polidex erkennt automatisch Erwähnungen von Bundestagsabgeordneten im Text.</p>
+      </section>
+
+      <section class="help-section">
+        <h3 class="help-section-title">&#x26A1; Fangen</h3>
+        <p>Klicke <strong>Fangen!</strong> bei einem erkannten Politiker, um ihn deiner Sammlung hinzuzufügen. Jeden Politiker kannst du nur <em>einmal</em> fangen.</p>
+      </section>
+
+      <section class="help-section">
+        <h3 class="help-section-title">&#x2B06; XP &amp; Level</h3>
+        <p>Scanne neue Artikel mit bereits gefangenen Politikern, um ihnen XP zu geben. Jeder neue Artikel gibt <strong>+10 XP</strong>, Artikel in denen sie in der Schlagzeile stehen <strong>+15 XP</strong>. Level steigt mit &radic;XP.</p>
+      </section>
+
+      <section class="help-section">
+        <h3 class="help-section-title">&#x1F525; Scan-Serie</h3>
+        <p>Scanne jeden Tag Artikel, um eine Serie aufzubauen. Pro 3 Seriertage gibt es <strong>+10% XP-Bonus</strong>, maximal <strong>2&times;</strong> (ab Tag 30).</p>
+      </section>
+
+      <section class="help-section">
+        <h3 class="help-section-title">&#x2605; Medienpräsenz</h3>
+        <p>Basiert auf der Aktivität des Politikers in den Medien.</p>
+        <ul class="help-presence-list">
+          <li><span class="presence-dot" style="color:#9c27b0">&#x25CF;</span> Kaum bekannt &mdash; kaum in den Medien</li>
+          <li><span class="presence-dot" style="color:#2196f3">&#x25CF;</span> Wenig präsent</li>
+          <li><span class="presence-dot" style="color:#4caf50">&#x25CF;</span> Präsent</li>
+          <li><span class="presence-dot" style="color:#9e9e9e">&#x25CF;</span> Sehr präsent &mdash; stark vertreten</li>
+        </ul>
+      </section>
+
+      <section class="help-section">
+        <h3 class="help-section-title">&#x1F3AF; Ziel</h3>
+        <p>Fange alle <strong>629 aktiven Bundestagsabgeordneten</strong> des 21. Bundestags!</p>
+      </section>
+
+      <section class="help-section">
+        <h3 class="help-section-title">&#x26D4; Gesperrte Seiten</h3>
+        <p>Partei-, Fraktions- und Regierungswebsites werden nicht gescannt (z.&thinsp;B. spd.de, bundestag.de).</p>
+      </section>
+    </div>
+    <button id="btn-close-help" class="btn btn-secondary">SCHLIESSEN</button>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
