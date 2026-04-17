@@ -44,10 +44,30 @@ export async function syncPoliticians(outputPath: string = DATA_FILE): Promise<n
   const periods = await fetchParliamentPeriods();
   console.log(`[sync] Found ${periods.length} Bundestag mandate periods: WP${periods[0]?.wp}–WP${periods[periods.length - 1]?.wp}`);
 
-  // Deduplicate across periods by stable AW politician ID.
+  const currentPeriod = periods.find(p => p.activeOnly)!;
+
+  // Load existing data — if present this is an incremental run and we skip
+  // all closed historical periods (they never change).
+  let existingPoliticians: PoliticianData[] = [];
+  try {
+    const raw = await fs.readFile(outputPath, 'utf-8');
+    const parsed = JSON.parse(raw) as unknown;
+    if (Array.isArray(parsed) && parsed.length > 0) existingPoliticians = parsed as PoliticianData[];
+  } catch { /* first run or missing file */ }
+
+  const isFirstRun    = existingPoliticians.length === 0;
+  const periodsToFetch = isFirstRun ? periods : [currentPeriod];
+
+  if (isFirstRun) {
+    console.log('[sync] First run — fetching all periods');
+  } else {
+    console.log(`[sync] Incremental sync — re-fetching WP${currentPeriod.wp} only (${existingPoliticians.length} existing politicians loaded)`);
+  }
+
+  // Deduplicate within fetched periods by stable AW politician ID.
   const allByAwId = new Map<number, PoliticianWithInternals>();
 
-  for (const { periodId, wp, activeOnly } of periods) {
+  for (const { periodId, wp, activeOnly } of periodsToFetch) {
     console.log(`[sync] Fetching WP${wp} (period ${periodId})...`);
     const mandates = await fetchMandates(periodId, activeOnly);
     console.log(`[sync]   ${mandates.length} mandates`);
@@ -56,15 +76,12 @@ export async function syncPoliticians(outputPath: string = DATA_FILE): Promise<n
     for (const p of politicians) {
       const existing = allByAwId.get(p._awId);
       if (existing) {
-        // Add this period to the set of active periods.
         existing.periodsActive = [...new Set([...existing.periodsActive, wp])].sort((a, b) => a - b);
-        // Newer period wins for faction, qid and stored id.
         if (wp > existing._wp) {
-          existing.faction = p.faction;
-          existing._qid   = p._qid ?? existing._qid;
-          existing._wp    = wp;
-          existing.id     = p.id; // prefer ext_id from most recent period
-          // mediaScore is a lifetime total — take the most recent value.
+          existing.faction    = p.faction;
+          existing._qid       = p._qid ?? existing._qid;
+          existing._wp        = wp;
+          existing.id         = p.id;
           existing.mediaScore = p.mediaScore;
         }
       } else {
@@ -76,12 +93,59 @@ export async function syncPoliticians(outputPath: string = DATA_FILE): Promise<n
     await sleep(300);
   }
 
-  const politicians = Array.from(allByAwId.values());
-  console.log(`[sync] ${politicians.length} unique politicians across WP16–WP21`);
+  let politicians: PoliticianWithInternals[];
 
-  // Committee memberships — only fetched for the current period (WP21).
-  console.log('[sync] Fetching committee memberships (WP21)...');
-  const committeeMemberships = await fetchCommitteeMemberships(161);
+  if (isFirstRun) {
+    politicians = Array.from(allByAwId.values());
+    console.log(`[sync] ${politicians.length} unique politicians across WP${periods[0]?.wp}–WP${periods[periods.length - 1]?.wp}`);
+  } else {
+    // Merge fresh current-period data with the existing historical data.
+    const existingById = new Map(existingPoliticians.map(p => [p.id, p]));
+    const currentWP    = currentPeriod.wp;
+
+    const currentIds = new Set<string>();
+    const updatedCurrent: PoliticianWithInternals[] = Array.from(allByAwId.values()).map(p => {
+      currentIds.add(p.id);
+      const prev = existingById.get(p.id);
+      if (!prev) return p;
+      return {
+        ...prev,
+        faction:       p.faction,
+        mediaScore:    p.mediaScore,
+        periodsActive: [...new Set([...(prev.periodsActive ?? []), currentWP])].sort((a, b) => a - b),
+        _qid:          p._qid,
+        _awId:         p._awId,
+        _wp:           p._wp,
+        id:            p.id,
+        isArchived:    undefined, // clear if they returned to active mandates
+      };
+    });
+
+    // IDs that were active in the current period last sync — those now missing are archived.
+    const previouslyInCurrentPeriod = new Set(
+      existingPoliticians
+        .filter(p => (p.periodsActive ?? []).includes(currentWP))
+        .map(p => p.id)
+    );
+
+    // Historical politicians (closed periods) pass through unchanged.
+    // Politicians who just left the current period get flagged as archived.
+    const historical: PoliticianWithInternals[] = existingPoliticians
+      .filter(p => !currentIds.has(p.id))
+      .map(p => ({
+        ...p,
+        _awId:      0,
+        _wp:        0,
+        isArchived: previouslyInCurrentPeriod.has(p.id) ? true : p.isArchived,
+      }));
+
+    politicians = [...historical, ...updatedCurrent];
+    console.log(`[sync] ${updatedCurrent.length} current-period politicians merged (${historical.length} historical unchanged)`);
+  }
+
+  // Committee memberships — only the current period.
+  console.log(`[sync] Fetching committee memberships (WP${currentPeriod.wp})...`);
+  const committeeMemberships = await fetchCommitteeMemberships(currentPeriod.periodId);
   console.log(`[sync] Got committee memberships for ${committeeMemberships.size} politicians`);
 
   for (const p of politicians) {
@@ -90,9 +154,9 @@ export async function syncPoliticians(outputPath: string = DATA_FILE): Promise<n
       p.committees = committees;
       p.types = committeesToTypes(committees);
     }
-    // Historical-only politicians keep faction-based types.
   }
 
+  // Only fetch images for politicians that don't have one yet.
   console.log('[sync] Fetching Wikidata portrait images...');
   await enrichImages(politicians);
 
@@ -100,7 +164,6 @@ export async function syncPoliticians(outputPath: string = DATA_FILE): Promise<n
   await fs.mkdir(path.dirname(outputPath), { recursive: true });
   await fs.writeFile(outputPath, json, 'utf-8');
 
-  // Pre-compress so the HTTP server can serve without per-request CPU cost.
   const compressed = await gzipAsync(Buffer.from(json, 'utf-8'));
   await fs.writeFile(outputPath + '.gz', compressed);
   console.log(`[sync] Done — wrote ${politicians.length} politicians to ${outputPath} (${compressed.length} bytes gzipped)`);
@@ -164,7 +227,7 @@ interface AwParliamentPeriodList {
  * automatically without code changes.
  */
 async function fetchParliamentPeriods(): Promise<Array<{ periodId: number; wp: number; activeOnly: boolean }>> {
-  const url = `${AW_API}/parliament-periods?parliament=${AW_BUNDESTAG_PARLIAMENT}&pager_limit=100`;
+  const url = `${AW_API}/parliament-periods?parliament=${AW_BUNDESTAG_PARLIAMENT}`;
   const res = await fetchJSON<AwParliamentPeriodList>(url);
 
   // Keep only full mandate periods (labels like "Bundestag 2005 - 2009").
@@ -392,7 +455,7 @@ const MANUAL_IMAGE_OVERRIDES: Record<string, string> = {
 // ─── Wikidata images ──────────────────────────────────────────────────────────
 
 async function enrichImages(politicians: PoliticianWithInternals[]): Promise<void> {
-  const withQid = politicians.filter(p => p._qid);
+  const withQid = politicians.filter(p => p._qid && !p.imageUrl);
   const BATCH = 50;
 
   for (let i = 0; i < withQid.length; i += BATCH) {

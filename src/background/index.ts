@@ -366,6 +366,30 @@ async function checkCatchAchievements(
     if (await Store.unlockAchievement('all_periods')) unlocked.push('all_periods');
   }
 
+  // type_collector: 8+ distinct types across all caught politicians.
+  const allTypes = new Set<string>();
+  for (const id of Object.keys(caught)) {
+    const pd = getPoliticianById(id);
+    if (pd) pd.types.forEach(t => allTypes.add(t));
+  }
+  if (allTypes.size >= 8 && await Store.unlockAchievement('type_collector')) unlocked.push('type_collector');
+
+  // faction_sweep: at least one politician from each of the 7 active factions.
+  const REQUIRED_FACTIONS = ['SPD', 'CDU/CSU', 'GRÜNE', 'FDP', 'AfD', 'BSW', 'Die Linke'];
+  const caughtFactions = new Set<string>(
+    Object.keys(caught).map(id => getPoliticianById(id)?.faction).filter((f): f is NonNullable<typeof f> => f != null)
+  );
+  if (REQUIRED_FACTIONS.every(f => caughtFactions.has(f)) && await Store.unlockAchievement('faction_sweep')) {
+    unlocked.push('faction_sweep');
+  }
+
+  // five_obscure: 5+ caught politicians with OBSCURE media presence.
+  const obscureCount = Object.keys(caught).filter(id => {
+    const pd = getPoliticianById(id);
+    return pd && calcMediaPresence(pd.mediaScore) === 'OBSCURE';
+  }).length;
+  if (obscureCount >= 5 && await Store.unlockAchievement('five_obscure')) unlocked.push('five_obscure');
+
   return unlocked;
 }
 
@@ -406,6 +430,8 @@ async function checkScanAchievements(streak: StreakData): Promise<string[]> {
     { id: 'streak_30',       cond: streak.current >= 30 },
     { id: 'level_5',         cond: maxLevel >= 5 },
     { id: 'level_10',        cond: maxLevel >= 10 },
+    { id: 'level_20',        cond: maxLevel >= 20 },
+    { id: 'total_xp_500',   cond: Object.values(caught).reduce((s, e) => s + e.xp, 0) >= 500 },
   ];
 
   for (const { id, cond } of candidates) {

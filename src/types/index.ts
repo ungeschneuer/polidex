@@ -6,15 +6,18 @@ export type Faction =
   | 'Die Linke' | 'fraktionslos';
 
 export type PolidexType =
-  | 'Economy'    // Finanzausschuss, Wirtschaft
-  | 'Green'      // Umwelt, Klimaschutz
-  | 'Defense'    // Verteidigung, Sicherheit
-  | 'Justice'    // Recht, Verfassung
-  | 'Health'     // Gesundheit, Familie
-  | 'Diplomat'   // Auswärtiges, Europa
-  | 'Tech'       // Digitales, Forschung
-  | 'Social'     // Soziales, Arbeit, Bildung
-  | 'Infrastructure'; // Bau, Verkehr, Energie
+  | 'Economy'        // Wirtschaft, Handel, Industrie
+  | 'Budget'         // Haushalt, Finanzen — fiscal/spending policy
+  | 'Green'          // Umwelt, Klimaschutz
+  | 'Defense'        // Verteidigung, Sicherheit
+  | 'Justice'        // Recht, Verfassung
+  | 'Health'         // Gesundheit, Familie
+  | 'Diplomat'       // Auswärtiges, Europa
+  | 'Tech'           // Digitales, Forschung
+  | 'Social'         // Soziales, Arbeit, Bildung
+  | 'Infrastructure' // Bau, Verkehr, Energie
+  | 'Agriculture'    // Landwirtschaft, Ernährung
+  | 'Culture';       // Kultur, Medien, Sport
 
 export type MediaPresence = 'PROMINENT' | 'NOTABLE' | 'MINOR' | 'OBSCURE';
 
@@ -36,6 +39,8 @@ export interface PoliticianData {
   mediaScore: number;
   // Wahlperiode numbers this politician was active in, e.g. [18, 19, 20, 21]
   periodsActive: number[];
+  // Set when a politician leaves the current Wahlperiode mid-term (exchanged/resigned).
+  isArchived?: boolean;
 }
 
 // ─── Game state ───────────────────────────────────────────────────────────────

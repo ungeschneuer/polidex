@@ -22,6 +22,7 @@ import type {
   ImportResultMessage,
   GameStateDataMessage,
   StreakData,
+  Longevity,
 } from '../types/index.js';
 import {
   calcLevel,
@@ -33,6 +34,7 @@ import {
   LONGEVITY_LABELS,
   LONGEVITY_COLORS,
   TYPE_LABELS,
+  TYPE_COLORS,
   FACTION_COLORS,
   ACHIEVEMENT_MAP,
 } from '../shared/constants.js';
@@ -80,6 +82,8 @@ const importFile       = el<HTMLInputElement>('import-file');
 const cardOverlay      = el('card-overlay');
 const detailCard       = el('detail-card');
 const btnCloseCard     = el<HTMLButtonElement>('btn-close-card');
+
+const statsContent     = el('stats-content');
 
 const helpOverlay      = el('help-overlay');
 const btnHelp          = el<HTMLButtonElement>('btn-help');
@@ -429,6 +433,7 @@ async function loadDex() {
   updateDexProgress(result.totalCaught);
   renderFactionStats();
   renderAchievements(gameState.achievements);
+  renderStats();
   renderDex();
 }
 
@@ -502,7 +507,7 @@ function renderAchievements(unlocked: Record<string, number>) {
 
     const icon = document.createElement('span');
     icon.className = 'achievement-icon';
-    icon.textContent = isUnlocked ? '\u{1F3C6}' : '\u{1F512}';
+    icon.textContent = isUnlocked ? (def.icon ?? '\u{1F3C6}') : '\u{1F512}';
 
     const name = document.createElement('span');
     name.className = 'achievement-name';
@@ -514,11 +519,120 @@ function renderAchievements(unlocked: Record<string, number>) {
   }
 }
 
+// ─── Statistics ───────────────────────────────────────────────────────────────
+
+function renderStats(): void {
+  statsContent.textContent = '';
+  if (dexEntries.length === 0) return;
+
+  // Block A — Übersicht
+  const overviewBlock = makeStatsBlock('ÜBERSICHT');
+  const totalXp       = dexEntries.reduce((s, e) => s + e.xp, 0);
+  const totalArticles = dexEntries.reduce((s, e) => s + e.articleCount, 0);
+  const maxLevel      = dexEntries.reduce((m, e) => Math.max(m, e.level), 0);
+  const grid = document.createElement('div');
+  grid.className = 'stats-overview-grid';
+  for (const [k, v] of [
+    ['Gefangen',       `${dexEntries.length} / ${totalPoliticians}`],
+    ['Gesamt-XP',      String(totalXp)],
+    ['Gesamtartikel',  String(totalArticles)],
+    ['Höchstes Lv.',   String(maxLevel)],
+  ] as [string, string][]) {
+    const cell = document.createElement('div');
+    cell.className = 'stats-kv';
+    const kEl = document.createElement('span'); kEl.className = 'stats-k'; kEl.textContent = k;
+    const vEl = document.createElement('span'); vEl.className = 'stats-v'; vEl.textContent = v;
+    cell.appendChild(kEl); cell.appendChild(vEl);
+    grid.appendChild(cell);
+  }
+  overviewBlock.appendChild(grid);
+  statsContent.appendChild(overviewBlock);
+
+  // Block B — Medienpräsenz
+  const presenceBlock  = makeStatsBlock('MEDIENPRÄSENZ');
+  const presenceCounts = new Map<string, number>();
+  for (const e of dexEntries) {
+    const tier = calcMediaPresence(e.mediaScore);
+    presenceCounts.set(tier, (presenceCounts.get(tier) ?? 0) + 1);
+  }
+  const total = dexEntries.length;
+  for (const tier of ['OBSCURE', 'MINOR', 'NOTABLE', 'PROMINENT'] as const) {
+    const count = presenceCounts.get(tier) ?? 0;
+    presenceBlock.appendChild(buildStatsBar(PRESENCE_LABELS[tier], count, total > 0 ? Math.round((count / total) * 100) : 0, PRESENCE_COLORS[tier]));
+  }
+  statsContent.appendChild(presenceBlock);
+
+  // Block C — Typenverteilung
+  const typeBlock  = makeStatsBlock('TYPEN');
+  const typeCounts = new Map<string, number>();
+  for (const e of dexEntries) {
+    for (const t of e.types) typeCounts.set(t, (typeCounts.get(t) ?? 0) + 1);
+  }
+  const maxTypeCount = Math.max(...typeCounts.values(), 1);
+  for (const [type, count] of [...typeCounts.entries()].sort((a, b) => b[1] - a[1])) {
+    const label = TYPE_LABELS[type as keyof typeof TYPE_LABELS] ?? type;
+    const color = TYPE_COLORS[type as keyof typeof TYPE_COLORS] ?? '#888';
+    typeBlock.appendChild(buildStatsBar(label, count, Math.round((count / maxTypeCount) * 100), color));
+  }
+  statsContent.appendChild(typeBlock);
+
+  // Block D — Fangaktivität
+  const heatBlock = makeStatsBlock('FANGAKTIVITÄT');
+  heatBlock.appendChild(buildHeatmap());
+  statsContent.appendChild(heatBlock);
+}
+
+function makeStatsBlock(title: string): HTMLDivElement {
+  const block = document.createElement('div');
+  block.className = 'stats-block';
+  const titleEl = document.createElement('div');
+  titleEl.className = 'stats-block-title';
+  titleEl.textContent = title;
+  block.appendChild(titleEl);
+  return block;
+}
+
+function buildStatsBar(label: string, count: number, pct: number, color: string): HTMLDivElement {
+  const row = document.createElement('div');
+  row.className = 'stats-bar-row';
+  const lbl = document.createElement('span'); lbl.className = 'stats-bar-label'; lbl.textContent = label;
+  const wrap = document.createElement('div'); wrap.className = 'stats-bar-wrap';
+  const bar = document.createElement('div');  bar.className  = 'stats-bar';
+  bar.style.width = `${pct}%`; bar.style.backgroundColor = color;
+  wrap.appendChild(bar);
+  const cnt = document.createElement('span'); cnt.className = 'stats-bar-count'; cnt.textContent = String(count);
+  row.appendChild(lbl); row.appendChild(wrap); row.appendChild(cnt);
+  return row;
+}
+
+function buildHeatmap(): HTMLDivElement {
+  const dayCounts = new Map<string, number>();
+  for (const e of dexEntries) {
+    const day = new Date(e.caughtAt).toISOString().slice(0, 10);
+    dayCounts.set(day, (dayCounts.get(day) ?? 0) + 1);
+  }
+  const grid = document.createElement('div');
+  grid.className = 'heat-grid';
+  const today = new Date();
+  for (let i = 83; i >= 0; i--) {
+    const d = new Date(today);
+    d.setDate(today.getDate() - i);
+    const key   = d.toISOString().slice(0, 10);
+    const count = dayCounts.get(key) ?? 0;
+    const cell  = document.createElement('div');
+    const level = count === 0 ? 0 : count === 1 ? 1 : count <= 3 ? 2 : 3;
+    cell.className = `heat-cell heat-${level}`;
+    cell.title = `${key}: ${count} gefangen`;
+    grid.appendChild(cell);
+  }
+  return grid;
+}
+
 // ─── Dex rendering ────────────────────────────────────────────────────────────
 
 function renderDex() {
   const query   = dexSearch.value.trim().toLowerCase();
-  const sortKey = dexSort.value as 'recent' | 'level' | 'name' | 'uncaught' | 'longevity';
+  const sortKey = dexSort.value as 'recent' | 'level' | 'name' | 'uncaught' | 'longevity' | 'articles' | 'rarity' | 'type';
 
   dexList.textContent = '';
 
@@ -546,6 +660,16 @@ function renderDex() {
     if (sortKey === 'level')    return b.level - a.level || b.xp - a.xp;
     if (sortKey === 'name')     return buildDisplayName(a).localeCompare(buildDisplayName(b), 'de');
     if (sortKey === 'longevity') return (b.periodsActive ?? []).length - (a.periodsActive ?? []).length || b.level - a.level;
+    if (sortKey === 'articles') return b.articleCount - a.articleCount || b.xp - a.xp;
+    if (sortKey === 'rarity') {
+      const RARITY_ORDER: Record<string, number> = { OBSCURE: 0, PROMINENT: 1, NOTABLE: 2, MINOR: 3 };
+      return (RARITY_ORDER[calcMediaPresence(a.mediaScore)] ?? 4) - (RARITY_ORDER[calcMediaPresence(b.mediaScore)] ?? 4) || b.caughtAt - a.caughtAt;
+    }
+    if (sortKey === 'type') {
+      const ta = TYPE_LABELS[a.types[0] as keyof typeof TYPE_LABELS] ?? 'Z';
+      const tb = TYPE_LABELS[b.types[0] as keyof typeof TYPE_LABELS] ?? 'Z';
+      return ta.localeCompare(tb, 'de') || buildDisplayName(a).localeCompare(buildDisplayName(b), 'de');
+    }
     return b.caughtAt - a.caughtAt;
   });
 
@@ -598,7 +722,7 @@ function buildDexItem(entry: PokedexEntry): HTMLLIElement {
   const pct = Math.min(100, Math.round(((entry.xp - xpBase) / (xpToNext - xpBase)) * 100));
 
   const li = document.createElement('li');
-  li.className = 'dex-item';
+  li.className = entry.isArchived ? 'dex-item archived' : 'dex-item';
 
   const avatar = document.createElement('div');
   avatar.className = 'dex-avatar';
@@ -631,6 +755,12 @@ function buildDexItem(entry: PokedexEntry): HTMLLIElement {
   sub.append(` \u00B7 ${entry.articleCount} Artikel`);
   if ((entry.periodsActive ?? []).length > 0) {
     sub.append(` \u00B7 ${entry.periodsActive.length}\u00A0WP`);
+  }
+  if (entry.isArchived) {
+    const archivedTag = document.createElement('span');
+    archivedTag.className = 'archived-tag';
+    archivedTag.textContent = 'ehem.';
+    sub.appendChild(archivedTag);
   }
 
   info.appendChild(name);
@@ -738,7 +868,9 @@ function showDexDetail(entry: PokedexEntry) {
     ],
     caughtUrl:   entry.caughtUrl,
     caughtTitle: entry.caughtTitle,
-    levelUp: false,
+    levelUp:     false,
+    isArchived:  entry.isArchived,
+    longevity:   calcLongevity(entry.periodsActive ?? []),
   });
 }
 
@@ -753,6 +885,8 @@ interface CardConfig {
   caughtUrl?: string;
   caughtTitle?: string;
   levelUp?: boolean;
+  isArchived?: boolean;
+  longevity?: Longevity;
 }
 
 function showCard(cfg: CardConfig) {
@@ -788,6 +922,13 @@ function showCard(cfg: CardConfig) {
   factionEl.textContent = cfg.faction;
   detailCard.appendChild(factionEl);
 
+  if (cfg.isArchived) {
+    const archivedEl = document.createElement('div');
+    archivedEl.className = 'card-archived-badge';
+    archivedEl.textContent = 'Ehemaliger MdB';
+    detailCard.appendChild(archivedEl);
+  }
+
   const typesEl = document.createElement('div');
   typesEl.className = 'card-types';
   for (const t of cfg.types) {
@@ -815,6 +956,14 @@ function showCard(cfg: CardConfig) {
   rarityEl.style.color = PRESENCE_COLORS[cfg.rarity];
   rarityEl.textContent = PRESENCE_LABELS[cfg.rarity].toUpperCase();
   detailCard.appendChild(rarityEl);
+
+  if (cfg.longevity) {
+    const longevityEl = document.createElement('div');
+    longevityEl.className = 'card-longevity';
+    longevityEl.style.color = LONGEVITY_COLORS[cfg.longevity];
+    longevityEl.textContent = LONGEVITY_LABELS[cfg.longevity].toUpperCase();
+    detailCard.appendChild(longevityEl);
+  }
 
   const statsEl = document.createElement('div');
   statsEl.className = 'card-stats';

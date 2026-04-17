@@ -927,5 +927,164 @@ details[open] .achievements-toggle::before { content: '- '; }
 .achievement-toast.toast-in  { animation: toast-slide-in  0.3s ease forwards; }
 .achievement-toast.toast-out { animation: toast-slide-out 0.35s ease forwards; }
 
+/* ─── Statistics section ─────────────────────────────────────────────────── */
+
+.stats-section {
+  border: 1px solid var(--border);
+  background: var(--bg-surface);
+}
+
+.stats-toggle {
+  padding: 5px 8px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: var(--text-muted);
+  cursor: pointer;
+  user-select: none;
+  list-style: none;
+}
+.stats-toggle::-webkit-details-marker { display: none; }
+.stats-toggle::before { content: '+ '; }
+details[open] .stats-toggle::before  { content: '- '; }
+
+.stats-content {
+  padding: 6px 8px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.stats-block {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.stats-block-title {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  color: var(--accent);
+  margin-bottom: 2px;
+}
+
+.stats-overview-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+}
+
+.stats-kv {
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  padding: 4px 6px;
+}
+
+.stats-k {
+  font-size: 9px;
+  color: var(--text-muted);
+  letter-spacing: 0.5px;
+}
+
+.stats-v {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.stats-bar-row {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10px;
+}
+
+.stats-bar-label {
+  width: 76px;
+  flex-shrink: 0;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.stats-bar-wrap {
+  flex: 1;
+  height: 4px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+}
+
+.stats-bar {
+  height: 100%;
+  min-width: 2px;
+}
+
+.stats-bar-count {
+  width: 20px;
+  text-align: right;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.heat-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 8px);
+  grid-auto-rows: 8px;
+  gap: 2px;
+}
+
+.heat-cell {
+  width: 8px;
+  height: 8px;
+  border: 1px solid var(--border);
+}
+
+.heat-0 { background: var(--bg-card); }
+.heat-1 { background: #3d5a80; border-color: #3d5a80; }
+.heat-2 { background: #1d7fc4; border-color: #1d7fc4; }
+.heat-3 { background: var(--accent); border-color: var(--accent); }
+
+/* ─── Card longevity badge ────────────────────────────────────────────────── */
+
+.card-longevity {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  margin-bottom: 4px;
+}
+
+/* ─── Archived / legacy politicians ─────────────────────────────────────── */
+
+.dex-item.archived { opacity: 0.6; }
+
+.archived-tag {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 0 4px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: #fff;
+  background: #666;
+  border-radius: 2px;
+  vertical-align: middle;
+}
+
+.card-archived-badge {
+  display: inline-block;
+  margin-bottom: 6px;
+  padding: 2px 6px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: #fff;
+  background: #666;
+  border: 1px solid #444;
+}
+
 /* ─── Utility ────────────────────────────────────────────────────────────── */
 .hidden { display: none !important; }
