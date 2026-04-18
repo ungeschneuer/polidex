@@ -44,8 +44,8 @@ jobs:
 
       - name: Publish to Firefox AMO
         env:
-          WEB_EXT_API_KEY: ${{ secrets.WEB_EXT_API_KEY }}
-          WEB_EXT_API_SECRET: ${{ secrets.WEB_EXT_API_SECRET }}
+          WEB_EXT_API_KEY: ${{ secrets.AMO_API_KEY }}
+          WEB_EXT_API_SECRET: ${{ secrets.AMO_API_SECRET }}
         run: ./node_modules/.bin/web-ext sign --channel listed --no-input
 
       - name: Create GitHub Release
