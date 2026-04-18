@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "Polidex",
-  "version": "0.1.0",
-  "description": "Catch Bundestag members in news articles and train them through media presence.",
+  "version": "0.9.0",
+  "description": "Sammle Politiker*innen in Nachrichtenartikeln",
   "permissions": [
     "storage",
     "alarms",
@@ -15,18 +15,32 @@
     "service_worker": "background.js",
     "type": "module"
   },
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'none'; frame-src 'none'"
+  },
   "content_scripts": [
     {
-      "matches": ["<all_urls>"],
+      "matches": [
+        "https://*"
+      ],
       "exclude_matches": [
-        "*://*.spd.de/*", "*://*.cdu.de/*", "*://*.csu.de/*",
-        "*://*.gruene.de/*", "*://*.fdp.de/*", "*://*.afd.de/*",
-        "*://*.buendnis-sahra-wagenknecht.de/*", "*://*.bsw-vg.de/*",
-        "*://*.die-linke.de/*", "*://*.bundestag.de/*",
-        "*://*.bundesregierung.de/*", "*://*.bundesrat.de/*",
+        "*://*.spd.de/*",
+        "*://*.cdu.de/*",
+        "*://*.csu.de/*",
+        "*://*.gruene.de/*",
+        "*://*.fdp.de/*",
+        "*://*.afd.de/*",
+        "*://*.buendnis-sahra-wagenknecht.de/*",
+        "*://*.bsw-vg.de/*",
+        "*://*.die-linke.de/*",
+        "*://*.bundestag.de/*",
+        "*://*.bundesregierung.de/*",
+        "*://*.bundesrat.de/*",
         "*://*.abgeordnetenwatch.de/*"
       ],
-      "js": ["content.js"],
+      "js": [
+        "content.js"
+      ],
       "run_at": "document_idle"
     }
   ],

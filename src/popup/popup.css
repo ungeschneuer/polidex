@@ -8,10 +8,10 @@
   --bg:          #1a1a2e;
   --bg-surface:  #16213e;
   --bg-card:     #0f3460;
-  --accent:      #e94560;
+  --accent:      #ed4560;
   --accent-2:    #f5a623;
   --text:        #e0e0e0;
-  --text-muted:  #8888aa;
+  --text-muted:  #a0a0c0;
   --border:      #334466;
 
   /* Media presence colors */
@@ -48,6 +48,47 @@ html, body {
   height: 100vh;
   overflow: hidden;
 }
+
+/* ─── Pin reminder banner ────────────────────────────────────────────────── */
+.pin-banner {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  background: var(--bg-card);
+  border-bottom: 2px solid var(--accent-2);
+  flex-shrink: 0;
+}
+
+.pin-banner-text {
+  flex: 1;
+  background: transparent;
+  border: none;
+  font-family: var(--font);
+  font-size: 10px;
+  color: var(--accent-2);
+  letter-spacing: 0.5px;
+  line-height: 1.4;
+  cursor: pointer;
+  text-align: left;
+  padding: 0;
+}
+
+.pin-banner-text:hover { text-decoration: underline; }
+
+.pin-banner-dismiss {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 2px;
+  font-family: var(--font);
+  flex-shrink: 0;
+}
+
+.pin-banner-dismiss:hover { color: var(--text); }
 
 /* ─── Header ─────────────────────────────────────────────────────────────── */
 .header {
@@ -383,8 +424,8 @@ html, body {
 
 /* ─── Help button ────────────────────────────────────────────────────────── */
 .btn-help {
-  width: 22px;
-  height: 22px;
+  width: 24px;
+  height: 24px;
   border-radius: 50%;
   border: 2px solid var(--border);
   background: transparent;
@@ -590,7 +631,7 @@ html, body {
 }
 
 .period-badge {
-  font-size: 9px;
+  font-size: 10px;
   font-weight: 700;
   padding: 1px 5px;
   background: var(--bg-surface);
@@ -729,6 +770,8 @@ html, body {
   .catch-anim { animation: none; }
   .xp-bar { transition: none; }
   .btn, .tab-btn, .candidate-item, .dex-item { transition: none; }
+  .achievement-toast.toast-in,
+  .achievement-toast.toast-out { animation: none; opacity: 1; }
 }
 
 /* ─── Streak display ─────────────────────────────────────────────────────── */
@@ -869,7 +912,7 @@ details[open] .achievements-toggle::before { content: '- '; }
 .achievement-icon { font-size: 12px; }
 
 .achievement-name {
-  font-size: 9px;
+  font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.5px;
   white-space: nowrap;
@@ -901,7 +944,7 @@ details[open] .achievements-toggle::before { content: '- '; }
 .achievement-toast-icon { font-size: 18px; }
 
 .achievement-toast-title {
-  font-size: 9px;
+  font-size: 10px;
   color: var(--accent-2);
   font-weight: 700;
   letter-spacing: 1px;
@@ -962,7 +1005,7 @@ details[open] .stats-toggle::before  { content: '- '; }
 }
 
 .stats-block-title {
-  font-size: 9px;
+  font-size: 10px;
   font-weight: 700;
   letter-spacing: 1.5px;
   color: var(--accent);
@@ -984,7 +1027,7 @@ details[open] .stats-toggle::before  { content: '- '; }
 }
 
 .stats-k {
-  font-size: 9px;
+  font-size: 10px;
   color: var(--text-muted);
   letter-spacing: 0.5px;
 }
@@ -1051,7 +1094,7 @@ details[open] .stats-toggle::before  { content: '- '; }
 /* ─── Card longevity badge ────────────────────────────────────────────────── */
 
 .card-longevity {
-  font-size: 9px;
+  font-size: 10px;
   font-weight: 700;
   letter-spacing: 1px;
   margin-bottom: 4px;
@@ -1065,7 +1108,7 @@ details[open] .stats-toggle::before  { content: '- '; }
   display: inline-block;
   margin-left: 6px;
   padding: 0 4px;
-  font-size: 9px;
+  font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.5px;
   color: #fff;
@@ -1078,7 +1121,7 @@ details[open] .stats-toggle::before  { content: '- '; }
   display: inline-block;
   margin-bottom: 6px;
   padding: 2px 6px;
-  font-size: 9px;
+  font-size: 10px;
   font-weight: 700;
   letter-spacing: 1px;
   color: #fff;
@@ -1088,3 +1131,15 @@ details[open] .stats-toggle::before  { content: '- '; }
 
 /* ─── Utility ────────────────────────────────────────────────────────────── */
 .hidden { display: none !important; }
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

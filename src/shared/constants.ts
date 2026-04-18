@@ -123,10 +123,10 @@ export const LONGEVITY_LABELS: Record<Longevity, string> = {
 };
 
 export const LONGEVITY_COLORS: Record<Longevity, string> = {
-  NEWCOMER:    '#8888aa',
+  NEWCOMER:    '#a0a0c0',
   EXPERIENCED: '#4caf50',
   VETERAN:     '#f5a623',
-  LEGEND:      '#e94560',
+  LEGEND:      '#ed4560',
 };
 
 // ─── Type mapping ─────────────────────────────────────────────────────────────
@@ -173,30 +173,30 @@ export interface AchievementDef {
 }
 
 export const ACHIEVEMENTS: AchievementDef[] = [
-  { id: 'first_catch',       name: 'Erster Fang',        description: 'Fange deinen ersten Politiker.' },
-  { id: 'ten_caught',        name: 'Sammler',             description: 'Fange 10 Politiker.' },
-  { id: 'fifty_caught',      name: 'Volksvertreter',      description: 'Fange 50 Politiker.' },
-  { id: 'hundred_caught',    name: 'Parlamentarier',      description: 'Fange 100 Politiker.' },
-  { id: 'two_hundred_caught',name: 'Bundestagskenner',    description: 'Fange 200 Politiker.' },
-  { id: 'ten_articles',      name: 'Fleißiger Leser',     description: 'Scanne 10 Artikel mit Ergebnissen.' },
-  { id: 'fifty_articles',    name: 'Nachrichtenfan',      description: 'Scanne 50 Artikel mit Ergebnissen.' },
-  { id: 'hundred_articles',  name: 'Medienexperte',       description: 'Scanne 100 Artikel mit Ergebnissen.' },
-  { id: 'streak_3',          name: 'Tagesroutine',        description: 'Erreiche eine 3-Tage-Scan-Serie.' },
-  { id: 'streak_7',          name: 'Wochenlauf',          description: 'Erreiche eine 7-Tage-Scan-Serie.' },
-  { id: 'streak_30',         name: 'Monatsserie',         description: 'Erreiche eine 30-Tage-Scan-Serie.' },
-  { id: 'catch_epic',        name: 'Randfigur',            description: 'Fange einen Politiker mit sehr geringer Medienpräsenz.' },
-  { id: 'catch_headline',    name: 'Schlagzeilenjäger',   description: 'Fange einen Politiker aus einer Schlagzeile.' },
-  { id: 'level_5',           name: 'Aufsteiger',          description: 'Bringe einen Politiker auf Level 5.' },
-  { id: 'level_10',          name: 'Meister',             description: 'Bringe einen Politiker auf Level 10.' },
-  { id: 'catch_veteran',     name: 'Parlamentsveteran',   description: 'Fange einen Politiker, der mindestens 4 Wahlperioden aktiv war.' },
-  { id: 'catch_legend',      name: 'Urgestein',           description: 'Fange einen Politiker, der mindestens 6 Wahlperioden aktiv war.' },
-  { id: 'catch_historical',  name: 'Zeitreisender',       description: 'Fange einen Politiker aus einer vergangenen Wahlperiode (vor WP21).' },
-  { id: 'all_periods',       name: 'Alle Generationen',   description: 'Fange Politiker aus allen 6 verfügbaren Wahlperioden (WP16–WP21).' },
-  { id: 'type_collector',   name: 'Typenforscher',        description: 'Fange Politiker mit mindestens 8 verschiedenen Typen.', icon: '\u{1F52C}' },
-  { id: 'faction_sweep',    name: 'Querdenker',            description: 'Fange mindestens einen Politiker aus jeder aktiven Fraktion.', icon: '\u{1F308}' },
-  { id: 'five_obscure',     name: 'Schattensucher',        description: 'Fange 5 Politiker mit sehr geringer Medienpräsenz.', icon: '\u{1F47B}' },
-  { id: 'level_20',         name: 'Stammgast',             description: 'Bringe einen Politiker auf Level 20.', icon: '\u2B50' },
-  { id: 'total_xp_500',     name: 'Erfahrener Jäger',     description: 'Sammle insgesamt 500 XP über alle Politiker.', icon: '\u{1F4AA}' },
+  { id: 'first_catch',       name: 'Erste Sammlung',        description: 'Sammle deine*n erste*n Politiker*in.' },
+  { id: 'ten_caught',        name: 'Sammler*in',            description: 'Sammle 10 Politiker*innen.' },
+  { id: 'fifty_caught',      name: 'Volksvertreter*in',     description: 'Sammle 50 Politiker*innen.' },
+  { id: 'hundred_caught',    name: 'Parlamentarier*in',     description: 'Sammle 100 Politiker*innen.' },
+  { id: 'two_hundred_caught',name: 'Bundestagskenner*in',   description: 'Sammle 200 Politiker*innen.' },
+  { id: 'ten_articles',      name: 'Fleißige*r Leser*in',   description: 'Scanne 10 Artikel mit Ergebnissen.' },
+  { id: 'fifty_articles',    name: 'Nachrichtenfan',        description: 'Scanne 50 Artikel mit Ergebnissen.' },
+  { id: 'hundred_articles',  name: 'Medienexpert*in',       description: 'Scanne 100 Artikel mit Ergebnissen.' },
+  { id: 'streak_3',          name: 'Tagesroutine',          description: 'Erreiche eine 3-Tage-Scan-Serie.' },
+  { id: 'streak_7',          name: 'Wochenlauf',            description: 'Erreiche eine 7-Tage-Scan-Serie.' },
+  { id: 'streak_30',         name: 'Monatsserie',           description: 'Erreiche eine 30-Tage-Scan-Serie.' },
+  { id: 'catch_epic',        name: 'Randfigur',             description: 'Sammle eine*n Politiker*in mit sehr geringer Medienpräsenz.' },
+  { id: 'catch_headline',    name: 'Schlagzeilensammler*in',description: 'Sammle eine*n Politiker*in aus einer Schlagzeile.' },
+  { id: 'level_5',           name: 'Aufsteiger*in',         description: 'Bringe eine*n Politiker*in auf Level 5.' },
+  { id: 'level_10',          name: 'Meister*in',            description: 'Bringe eine*n Politiker*in auf Level 10.' },
+  { id: 'catch_veteran',     name: 'Parlamentsveteran*in',  description: 'Sammle eine*n Politiker*in, die*der mindestens 4 Wahlperioden aktiv war.' },
+  { id: 'catch_legend',      name: 'Urgestein',             description: 'Sammle eine*n Politiker*in, die*der mindestens 6 Wahlperioden aktiv war.' },
+  { id: 'catch_historical',  name: 'Zeitreisende*r',        description: 'Sammle eine*n Politiker*in aus einer vergangenen Wahlperiode (vor WP21).' },
+  { id: 'all_periods',       name: 'Alle Generationen',     description: 'Sammle Politiker*innen aus allen 6 verfügbaren Wahlperioden (WP16–WP21).' },
+  { id: 'type_collector',   name: 'Typenforscher*in',       description: 'Sammle Politiker*innen mit mindestens 8 verschiedenen Typen.', icon: '\u{1F52C}' },
+  { id: 'faction_sweep',    name: 'Querdenker*in',          description: 'Sammle mindestens eine*n Politiker*in aus jeder aktiven Fraktion.', icon: '\u{1F308}' },
+  { id: 'five_obscure',     name: 'Schattensucher*in',      description: 'Sammle 5 Politiker*innen mit sehr geringer Medienpräsenz.', icon: '\u{1F47B}' },
+  { id: 'level_20',         name: 'Stammgast',              description: 'Bringe eine*n Politiker*in auf Level 20.', icon: '\u2B50' },
+  { id: 'total_xp_500',     name: 'Erfahrene*r Sammler*in', description: 'Sammle insgesamt 500 XP über alle Politiker*innen.', icon: '\u{1F4AA}' },
 ];
 
 export const ACHIEVEMENT_MAP = new Map(ACHIEVEMENTS.map(a => [a.id, a]));
@@ -205,13 +205,10 @@ export const ACHIEVEMENT_MAP = new Map(ACHIEVEMENTS.map(a => [a.id, a]));
 
 // ─── Server ───────────────────────────────────────────────────────────────────
 
+declare const __POLIDEX_SERVER_URL__: string;
+
 /** Base URL of the Polidex data server. Overridable at build time via webpack DefinePlugin. */
-export const POLIDEX_SERVER_URL: string =
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  typeof (globalThis as any).__POLIDEX_SERVER_URL__ === 'string'
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    ? (globalThis as any).__POLIDEX_SERVER_URL__
-    : 'http://localhost:3000';
+export const POLIDEX_SERVER_URL: string = __POLIDEX_SERVER_URL__;
 
 export const POLITICIANS_SYNC_INTERVAL_MS   = 24 * 60 * 60 * 1000; // 24 hours base interval
 /** Sync is skipped (unless forced) when data is fresher than this. */
@@ -386,10 +383,13 @@ export const KNOWN_NEWS_DOMAINS: ReadonlySet<string> = new Set([
   'zsz.ch', 'zugerzeitung.ch', 'zuonline.ch', 'zvw.de',
 ]);
 
-export function isKnownNewsDomain(url: string): boolean {
+export function isKnownNewsDomain(
+  url: string,
+  domains: ReadonlySet<string> = KNOWN_NEWS_DOMAINS
+): boolean {
   try {
     const host = new URL(url).hostname.toLowerCase().replace(/^www\./, '');
-    for (const domain of KNOWN_NEWS_DOMAINS) {
+    for (const domain of domains) {
       if (host === domain || host.endsWith('.' + domain)) return true;
     }
   } catch { /* invalid URL */ }
@@ -417,10 +417,13 @@ export const BLOCKED_DOMAINS: ReadonlySet<string> = new Set([
   'abgeordnetenwatch.de', 'wahlrecht.de', 'wahl.de',
 ]);
 
-export function isBlockedDomain(url: string): boolean {
+export function isBlockedDomain(
+  url: string,
+  domains: ReadonlySet<string> = BLOCKED_DOMAINS
+): boolean {
   try {
     const host = new URL(url).hostname.toLowerCase().replace(/^www\./, '');
-    for (const domain of BLOCKED_DOMAINS) {
+    for (const domain of domains) {
       if (host === domain || host.endsWith('.' + domain)) return true;
     }
   } catch { /* invalid URL */ }

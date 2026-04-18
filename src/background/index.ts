@@ -7,6 +7,7 @@
  * - Manages game state (catch, XP, leveling, streak, achievements)
  */
 
+import browser from 'webextension-polyfill';
 import type {
   ExtensionMessage,
   ScanPageMessage,
@@ -33,9 +34,10 @@ import {
   POLITICIANS_SYNC_JITTER_MS,
   getStreakMultiplier,
   ACHIEVEMENTS,
+  POLIDEX_SERVER_URL,
 } from '../shared/constants.js';
 import { findMatches } from './matcher.js';
-import { fetchPoliticiansFromServer, loadBundledPoliticians } from './api.js';
+import { fetchPoliticiansFromServer, loadBundledPoliticians, fetchDomainLists } from './api.js';
 import * as Store from './storage.js';
 
 // ─── In-memory cache ──────────────────────────────────────────────────────────
@@ -79,12 +81,12 @@ let syncInProgress = false;
 function scheduleNextSync(): void {
   const jitterMs    = Math.random() * POLITICIANS_SYNC_JITTER_MS;
   const delayMinutes = (POLITICIANS_SYNC_INTERVAL_MS + jitterMs) / 60_000;
-  chrome.alarms.create('syncPoliticians', { delayInMinutes: delayMinutes });
+  browser.alarms.create('syncPoliticians', { delayInMinutes: delayMinutes });
 }
 
 // ─── Installation / startup ───────────────────────────────────────────────────
 
-chrome.runtime.onInstalled.addListener(async ({ reason }) => {
+browser.runtime.onInstalled.addListener(async ({ reason }) => {
   if (reason === 'install') {
     const bundled = await loadBundledPoliticians();
     if (bundled && bundled.length > 0) {
@@ -93,6 +95,7 @@ chrome.runtime.onInstalled.addListener(async ({ reason }) => {
       console.log(`[Polidex] Seeded ${bundled.length} politicians from bundled data`);
     }
     syncPoliticians(true).catch(err => console.warn('[Polidex] Initial sync failed:', err));
+    browser.tabs.create({ url: browser.runtime.getURL('welcome.html') });
   }
 
   if (reason === 'update') {
@@ -113,12 +116,12 @@ chrome.runtime.onInstalled.addListener(async ({ reason }) => {
   // Replace any existing sync alarm (including old periodInMinutes-based alarms
   // from previous versions) with a fresh jittered one-shot alarm.
   scheduleNextSync();
-  chrome.alarms.create('pruneArticles', {
+  browser.alarms.create('pruneArticles', {
     periodInMinutes: 60, // hourly check
   });
 });
 
-chrome.alarms.onAlarm.addListener(async alarm => {
+browser.alarms.onAlarm.addListener(async alarm => {
   if (alarm.name === 'syncPoliticians') {
     // Reschedule BEFORE syncing so that a service worker crash during sync
     // doesn't orphan the alarm and leave the client without future syncs.
@@ -130,16 +133,17 @@ chrome.alarms.onAlarm.addListener(async alarm => {
 
 // ─── Message handling ─────────────────────────────────────────────────────────
 
-chrome.runtime.onMessage.addListener((message: ExtensionMessage, sender, sendResponse) => {
+browser.runtime.onMessage.addListener((rawMessage: unknown, sender, sendResponse) => {
+  const message = rawMessage as ExtensionMessage;
   if (message.type === 'ARTICLE_STATUS') {
     handleArticleStatus(message, sender.tab?.id);
     sendResponse(null);
-    return false;
+  } else {
+    handleMessage(message).then(sendResponse).catch(err => {
+      console.error('[Polidex] Message handler error:', err);
+      sendResponse({ error: String(err) });
+    });
   }
-  handleMessage(message).then(sendResponse).catch(err => {
-    console.error('[Polidex] Message handler error:', err);
-    sendResponse({ error: String(err) });
-  });
   return true;
 });
 
@@ -473,16 +477,16 @@ const BADGE_COLOR_ARTICLE = '#e94560';
 function handleArticleStatus(message: ArticleStatusMessage, tabId: number | undefined) {
   if (tabId === undefined) return;
   if (message.isArticle) {
-    chrome.action.setBadgeText({ text: '!', tabId });
-    chrome.action.setBadgeBackgroundColor({ color: BADGE_COLOR_ARTICLE, tabId });
+    browser.action.setBadgeText({ text: '!', tabId });
+    browser.action.setBadgeBackgroundColor({ color: BADGE_COLOR_ARTICLE, tabId });
   } else {
-    chrome.action.setBadgeText({ text: '', tabId });
+    browser.action.setBadgeText({ text: '', tabId });
   }
 }
 
-chrome.tabs.onUpdated.addListener((tabId, changeInfo) => {
+browser.tabs.onUpdated.addListener((tabId, changeInfo) => {
   if (changeInfo.status === 'loading') {
-    chrome.action.setBadgeText({ text: '', tabId });
+    browser.action.setBadgeText({ text: '', tabId });
   }
 });
 
@@ -551,12 +555,18 @@ async function syncPoliticians(force = false): Promise<{ synced: number }> {
 
     if (result === null) {
       console.log('[Polidex] Politicians up to date (304 Not Modified)');
+      await Store.touchPoliticiansUpdatedAt();
       return { synced: 0 };
     }
 
     await Store.setPoliticians(result.politicians);
     if (result.etag) await Store.setPoliticiansETag(result.etag);
     invalidateCache();
+
+    const { newsDomains, blockedDomains } = await fetchDomainLists(POLIDEX_SERVER_URL);
+    if (newsDomains) await Store.setNewsDomains(newsDomains);
+    if (blockedDomains) await Store.setBlockedDomains(blockedDomains);
+
     console.log(`[Polidex] Synced ${result.politicians.length} politicians from server`);
     return { synced: result.politicians.length };
   } catch (err) {

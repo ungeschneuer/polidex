@@ -234,4 +234,7 @@ export interface StorageSchema {
   articles: Record<string, ScannedArticle>; // hash -> article record
   streak: StreakData;                        // daily scan streak
   achievements: Record<string, number>;      // achievement id -> unlock timestamp
+  newsDomains: string[];                     // synced from server, overrides bundled list
+  blockedDomains: string[];                  // synced from server, overrides bundled list
+  pinReminderDismissed: boolean;             // user dismissed the pin-to-toolbar banner
 }

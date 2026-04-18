@@ -5,6 +5,7 @@
  * Returns null when server responds 304 Not Modified.
  */
 
+import browser from 'webextension-polyfill';
 import type { PoliticianData } from '../types/index.js';
 import { POLIDEX_SERVER_URL } from '../shared/constants.js';
 
@@ -14,7 +15,7 @@ import { POLIDEX_SERVER_URL } from '../shared/constants.js';
  */
 export async function loadBundledPoliticians(): Promise<PoliticianData[] | null> {
   try {
-    const url = chrome.runtime.getURL('politicians.json');
+    const url = browser.runtime.getURL('politicians.json');
     const res = await fetch(url);
     if (!res.ok) return null;
     const data = await res.json() as unknown;
@@ -54,4 +55,30 @@ export async function fetchPoliticiansFromServer(
 
   const etag = res.headers.get('ETag') ?? '';
   return { politicians: data as PoliticianData[], etag };
+}
+
+/**
+ * Downloads the news and blocked domain lists from the server.
+ * Returns null for a list if the fetch fails — callers fall back to bundled defaults.
+ */
+export async function fetchDomainLists(
+  serverUrl: string
+): Promise<{ newsDomains: string[] | null; blockedDomains: string[] | null }> {
+  async function fetchList(path: string): Promise<string[] | null> {
+    try {
+      const res = await fetch(`${serverUrl}/${path}`, { cache: 'no-cache' });
+      if (!res.ok) return null;
+      const data = await res.json() as unknown;
+      if (!Array.isArray(data)) return null;
+      return (data as unknown[]).filter((d): d is string => typeof d === 'string');
+    } catch {
+      return null;
+    }
+  }
+
+  const [newsDomains, blockedDomains] = await Promise.all([
+    fetchList('news-domains.json'),
+    fetchList('blocked-domains.json'),
+  ]);
+  return { newsDomains, blockedDomains };
 }

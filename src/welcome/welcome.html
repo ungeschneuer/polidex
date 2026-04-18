@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Willkommen bei Polidex</title>
+  <link rel="stylesheet" href="welcome.css">
+</head>
+<body>
+
+  <div class="page">
+
+    <!-- Header -->
+    <header class="hero">
+      <div class="hero-inner">
+        <div class="logo">POLIDEX</div>
+        <p class="tagline">Willkommen! Alles bereit.</p>
+        <p class="sub">Hier ist alles, was du zum Start wissen musst.</p>
+      </div>
+    </header>
+
+    <main class="content">
+
+      <!-- How it works -->
+      <section class="section">
+        <p class="section-label">Anleitung</p>
+        <h2 class="section-title">So funktioniert&rsquo;s</h2>
+        <div class="steps">
+
+          <div class="step">
+            <div class="step-num">01</div>
+            <div class="step-body">
+              <div class="step-tag">// ARTIKEL &Ouml;FFNEN</div>
+              <h3 class="step-title">Artikel &ouml;ffnen</h3>
+              <p class="step-desc">&Ouml;ffne einen Nachrichtenartikel auf einer beliebigen Nachrichtenseite &mdash; zum Beispiel tagesschau.de, spiegel.de oder zeit.de.</p>
+            </div>
+          </div>
+
+          <div class="step">
+            <div class="step-num">02</div>
+            <div class="step-body">
+              <div class="step-tag">// SEITE SCANNEN</div>
+              <h3 class="step-title">Seite scannen</h3>
+              <p class="step-desc">Klicke oben rechts im Browser auf das Polidex-Symbol, um das Popup zu &ouml;ffnen. Dann auf <strong>SEITE SCANNEN</strong>.</p>
+            </div>
+          </div>
+
+          <div class="step">
+            <div class="step-num">03</div>
+            <div class="step-body">
+              <div class="step-tag">// SAMMELN</div>
+              <h3 class="step-title">Sammeln</h3>
+              <p class="step-desc">Erkannte Bundestagsabgeordnete*n erscheinen in der Ergebnisliste. Mit einem Klick auf <strong>SAMMELN!</strong> landen sie in deiner Sammlung.</p>
+            </div>
+          </div>
+
+          <div class="step">
+            <div class="step-num">04</div>
+            <div class="step-body">
+              <div class="step-tag">// AUFLEVELN</div>
+              <h3 class="step-title">Aufleveln</h3>
+              <p class="step-desc">Scanne mehr Artikel, um gesammelten Politiker*innen XP zu geben. Je mehr Artikel, desto h&ouml;her das Level. Artikel mit Schlagzeile geben Bonus-XP.</p>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- Pin instructions -->
+      <section class="section">
+        <p class="section-label">Empfohlen</p>
+        <h2 class="section-title">Polidex anpinnen</h2>
+        <p class="intro-text">Standardm&auml;&szlig;ig ist Polidex im Erweiterungs-Men&uuml; versteckt. Pinne es an die Symbolleiste, damit du mit einem Klick scannen kannst.</p>
+
+        <div class="pin-grid">
+
+          <div class="pin-card">
+            <div class="pin-card-header">
+              <span class="pin-badge chrome">CHROME</span>
+              <span class="pin-badge-also">Edge &middot; Brave &middot; Arc</span>
+            </div>
+            <ol class="pin-steps">
+              <li>Klicke auf das Puzzle-St&uuml;ck-Symbol rechts neben der Adressleiste.</li>
+              <li>Suche <strong>Polidex</strong> in der Liste.</li>
+              <li>Klicke auf das Pin-Symbol neben Polidex.</li>
+            </ol>
+            <div class="pin-result">Polidex erscheint jetzt dauerhaft in der Symbolleiste.</div>
+          </div>
+
+          <div class="pin-card">
+            <div class="pin-card-header">
+              <span class="pin-badge firefox">FIREFOX</span>
+            </div>
+            <ol class="pin-steps">
+              <li>Klicke auf das Erweiterungs-Symbol rechts neben der Adressleiste.</li>
+              <li>Suche <strong>Polidex</strong> in der Liste.</li>
+              <li>Klicke auf das Zahnrad-Symbol und w&auml;hle <strong>An Symbolleiste anpinnen</strong>.</li>
+            </ol>
+            <div class="pin-result">Polidex erscheint jetzt dauerhaft in der Symbolleiste.</div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- Tips -->
+      <section class="section">
+        <p class="section-label">Hinweise</p>
+        <h2 class="section-title">Gut zu wissen</h2>
+        <ul class="tips-list">
+          <li><span class="tip-check">&#x2713;</span><span>Alle Daten bleiben <strong>ausschlie&szlig;lich lokal</strong> in deinem Browser &mdash; kein Server, kein Account.</span></li>
+          <li><span class="tip-check">&#x2713;</span><span>Es gibt einige <strong>Achievements</strong>, die du bei besonderen Kombis oder Serien erhälst.</span></li>
+          <li><span class="tip-check">&#x2713;</span><span>Deine Sammlung l&auml;sst sich unter <strong>Sammlung &rarr; Exportieren</strong> als JSON sichern und sp&auml;ter importieren.</span></li>
+          <li><span class="tip-check">&#x2713;</span><span>Partei- und Regierungswebsites können nicht gescannt werden (z.&nbsp;B. bundestag.de, spd.de).</span></li>
+        </ul>
+      </section>
+
+    </main>
+
+    <footer class="footer">
+      <button id="btn-start" class="btn-start">&#x25B6;&nbsp; LOS GEHT&rsquo;S!</button>
+      <p class="footer-note">Diese Seite &ouml;ffnet sich nur einmal. &Uuml;ber den <strong>?</strong>-Button im Popup kannst du die Spielregeln jederzeit aufrufen.</p>
+    </footer>
+
+  </div>
+
+  <script src="welcome.js"></script>
+</body>
+</html>

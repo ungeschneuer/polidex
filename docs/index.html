@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Polidex – Entdecke Bundestagsabgeordnete in Nachrichtenartikeln. Kostenlose Browser-Extension für Chrome und Firefox.">
+  <title>Polidex – Bundestagsabgeordnete sammeln</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%231a1a2e'/><text x='2' y='24' font-size='22' font-family='monospace' font-weight='900' fill='%23ed4560'>P</text></svg>">
+</head>
+<body>
+
+  <!-- ── Nav ── -->
+  <nav class="nav" role="navigation">
+    <div class="nav-inner">
+      <a href="#" class="nav-logo">POLIDEX</a>
+      <ul class="nav-links">
+        <li class="nav-link-hide"><a href="#wie-funktioniert">So geht&rsquo;s</a></li>
+        <li class="nav-link-hide"><a href="#datenschutz">Datenschutz</a></li>
+        <li><a href="#herunterladen" class="nav-cta">DOWNLOAD</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- ── Hero ── -->
+  <section class="hero">
+    <div class="container">
+      <h1 class="hero-logo">POLIDEX<span class="cursor" aria-hidden="true"></span></h1>
+      <p class="hero-tagline">Sammle alle Bundestagsabgeordnete in der Wildnis (Nachrichtenartikel.</p>
+      <p class="hero-sub">Browser-Extension ohne seltsames Datensammeln. Versprochen!</p>
+      <div class="hero-actions">
+        <a href="#herunterladen" class="btn btn-primary btn-lg">&#x25B6; CHROME HERUNTERLADEN</a>
+        <a href="#herunterladen" class="btn btn-primary btn-lg">FIREFOX HERUNTERLADEN</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Was ist Polidex ── -->
+  <section>
+    <div class="container">
+      <p class="section-label">Einleitung</p>
+      <h2 class="section-title">Was ist Polidex?</h2>
+      <div class="intro-grid">
+        <div>
+          <p class="intro-text">
+            <strong>Polidex</strong> ist eine Browser-Extension f&uuml;r Chrome und Firefox.
+            &Ouml;ffne einen Nachrichtenartikel, klicke auf &bdquo;Seite scannen&ldquo;, und
+            Polidex erkennt automatisch, welche Bundestagsabgeordneten im Text erw&auml;hnt werden.
+            Sammle sie alle, von den Dauerbrennern bis zu den ganz seltenen Hinterbänkler*innen!
+          </p>
+          <p class="intro-text" style="margin-top: 16px;">
+            Alle Daten bleiben <strong>ausschlie&szlig;lich lokal</strong> in deinem Browser &mdash;
+            kein Backend, kein Konto, kein Upload zu Drittservern.
+            Die Politiker*innendaten werden t&auml;glich von
+            <strong>abgeordnetenwatch.de</strong> und <strong>Wikipedia</strong> synchronisiert.
+          </p>
+          <div class="intro-highlight">
+            Ziel: Alle <strong>1.865 Abgeordnete*n</strong> der Wahlperioden&nbsp;16&ndash;21 (2005&ndash;heute) sammeln &mdash; vom aktuellen 21.&thinsp;Bundestag (630&nbsp;Abgeordnete) bis zur&uuml;ck zum 16.&thinsp;Bundestag (2005&ndash;09).
+          </div>
+        </div>
+        <div class="intro-visual" aria-hidden="true">
+          <div class="mock-header">
+            <span class="mock-logo">POLIDEX</span>
+            <span class="mock-tab active">Scan</span>
+            <span class="mock-tab">Sammlung</span>
+          </div>
+          <button class="mock-btn" tabindex="-1">&#x25B6; SEITE SCANNEN</button>
+          <div style="font-size:11px; color: var(--text-muted); margin-bottom: 8px; letter-spacing: 1px;">3 Politiker*innen GEFUNDEN</div>
+          <div class="mock-result">
+            <div class="mock-avatar">&#x1F464;</div>
+            <div class="mock-info">
+              <div class="mock-name">Friedrich Merz</div>
+              <div class="mock-meta">CDU/CSU &bull; Economy</div>
+            </div>
+            <div class="mock-catch">SAMMELN!</div>
+          </div>
+          <div class="mock-result">
+            <div class="mock-avatar">&#x1F464;</div>
+            <div class="mock-info">
+              <div class="mock-name">Annalena Baerbock</div>
+              <div class="mock-meta">GR&Uuml;NE &bull; Diplomat</div>
+            </div>
+            <div class="mock-catch">SAMMELN!</div>
+          </div>
+          <div class="mock-result">
+            <div class="mock-avatar">&#x1F464;</div>
+            <div class="mock-info">
+              <div class="mock-name">Olaf Scholz</div>
+              <div class="mock-meta">SPD &bull; Budget</div>
+            </div>
+            <div class="mock-catch">SAMMELN!</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── So funktioniert's ── -->
+  <section id="wie-funktioniert">
+    <div class="container">
+      <p class="section-label">Anleitung</p>
+      <h2 class="section-title">So funktioniert&rsquo;s</h2>
+      <div class="steps-grid">
+        <div class="step-card">
+          <div class="step-num">01</div>
+          <span class="step-slash">// ARTIKEL &Ouml;FFNEN</span>
+          <h3 class="step-title">Artikel &ouml;ffnen</h3>
+          <p class="step-desc">&Ouml;ffne einen Nachrichtenartikel auf einer beliebigen Nachrichtenseite.</p>
+          <div class="step-connector" aria-hidden="true"></div>
+        </div>
+        <div class="step-card">
+          <div class="step-num">02</div>
+          <span class="step-slash">// SEITE SCANNEN</span>
+          <h3 class="step-title">Seite scannen</h3>
+          <p class="step-desc">Klicke auf &bdquo;Seite scannen&ldquo; im Polidex-Popup oben rechts im Browser.</p>
+          <div class="step-connector" aria-hidden="true"></div>
+        </div>
+        <div class="step-card">
+          <div class="step-num">03</div>
+          <span class="step-slash">// SAMMELN</span>
+          <h3 class="step-title">Sammeln</h3>
+          <p class="step-desc">Erkannte Politiker*innen mit einem Klick zur pers&ouml;nlichen Kollektion hinzuf&uuml;gen.</p>
+          <div class="step-connector" aria-hidden="true"></div>
+        </div>
+        <div class="step-card">
+          <div class="step-num">04</div>
+          <span class="step-slash">// AUFLEVELN</span>
+          <h3 class="step-title">Aufleveln</h3>
+          <p class="step-desc">Scanne weitere Artikel, um XP zu sammeln, Level zu steigen und Errungenschaften freizuschalten.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+
+  <!-- ── Datenschutz ── -->
+  <section id="datenschutz">
+    <div class="container">
+      <p class="section-label">Privatsph&auml;re</p>
+      <h2 class="section-title">Datenschutz</h2>
+      <ul class="privacy-list">
+        <li>
+          <span class="privacy-check">&#x2713;</span>
+          <span>Alle Daten werden <strong>ausschlie&szlig;lich lokal</strong> in deinem Browser gespeichert &ndash; nichts verl&auml;sst dein Ger&auml;t.</span>
+        </li>
+        <li>
+          <span class="privacy-check">&#x2713;</span>
+          <span>Kein Backend, kein Server, keine Anmeldung erforderlich.</span>
+        </li>
+        <li>
+          <span class="privacy-check">&#x2713;</span>
+          <span>Open Source &mdash; der vollst&auml;ndige Quellcode ist auf <a href="https://github.com/ungeschneuer/polidex" data-todo="github-url">GitHub</a> einsehbar.</span>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ── Download ── -->
+  <section id="herunterladen">
+    <div class="container">
+      <p class="section-label">Installation</p>
+      <h2 class="section-title">Herunterladen</h2>
+      <div class="download-grid">
+        <div class="download-card" id="chrome-download">
+          <div class="download-card-icon" aria-hidden="true">&#x1F4BB;</div>
+          <div>
+            <div class="download-card-title">Google Chrome</div>
+            <p class="download-card-sub">Kompatibel mit Chrome, Edge, Brave und allen Chromium-basierten Browsern.</p>
+          </div>
+          <a href="#" data-todo="chrome-store-url" class="btn btn-primary">IM CHROME WEB STORE &rarr;</a>
+        </div>
+        <div class="download-card" id="firefox-download">
+          <div class="download-card-icon" aria-hidden="true">&#x1F98A;</div>
+          <div>
+            <div class="download-card-title">Mozilla Firefox</div>
+            <p class="download-card-sub">F&uuml;r Firefox ab Version 128. Verf&uuml;gbar auf Firefox Add-ons (AMO).</p>
+          </div>
+          <a href="#" data-todo="firefox-amo-url" class="btn btn-primary">AUF FIREFOX ADD-ONS &rarr;</a>
+        </div>
+      </div>
+
+      <div class="pin-tip">
+        <span class="pin-tip-icon" aria-hidden="true">&#x1F4CC;</span>
+        <div class="pin-tip-body">
+          <strong>Tipp: Polidex an die Symbolleiste anpinnen</strong>
+          <ul class="pin-tip-list">
+            <li><strong>Chrome&nbsp;/&nbsp;Edge&nbsp;/&nbsp;Brave:</strong> Klicke auf das Puzzle-St&uuml;ck-Symbol oben rechts &rarr; Polidex &rarr; Pin-Symbol.</li>
+            <li><strong>Firefox:</strong> Klicke auf das Erweiterungen-Symbol &rarr; Polidex &rarr; &bdquo;An Symbolleiste anpinnen&ldquo;.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Footer ── -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <span class="footer-logo">POLIDEX</span>
+      <span class="footer-copy">Open Source &middot; MIT Lizenz &middot; &copy; 2025</span>
+      <ul class="footer-links">
+        <li><a href="https://github.com/ungeschneuer/polidex" data-todo="github-url">GitHub</a></li>
+        <li><a href="#herunterladen">Download</a></li>
+      </ul>
+    </div>
+  </footer>
+
+</body>
+</html>

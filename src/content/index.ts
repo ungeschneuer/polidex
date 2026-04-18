@@ -7,32 +7,51 @@
  * - Send extracted content to the background service worker
  */
 
+import browser from 'webextension-polyfill';
 import type { ArticleContent, ExtractContentResult, ScanPageMessage } from '../types/index.js';
-import { isBlockedDomain, isKnownNewsDomain } from '../shared/constants.js';
+import {
+  isBlockedDomain,
+  isKnownNewsDomain,
+  KNOWN_NEWS_DOMAINS,
+  BLOCKED_DOMAINS,
+} from '../shared/constants.js';
+
+// ─── Synced domain sets (loaded from storage on init, fall back to bundled) ───
+
+let newsDomains: ReadonlySet<string> = KNOWN_NEWS_DOMAINS;
+let blockedDomains: ReadonlySet<string> = BLOCKED_DOMAINS;
 
 // ─── Message listener ─────────────────────────────────────────────────────────
 
-chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
+browser.runtime.onMessage.addListener((rawMessage: unknown, _sender, sendResponse) => {
+  const message = rawMessage as { type: string };
   if (message.type === 'EXTRACT_CONTENT') {
     sendResponse(extractContent());
   }
   return true;
 });
 
-// Proactively notify the background so it can update the toolbar badge.
-// Runs once per page load (content scripts are injected fresh per navigation).
-(function notifyArticleStatus() {
+// Load synced domain lists from storage, then notify the background about
+// article status. Falls back to bundled defaults if storage is empty.
+void (async () => {
+  const stored = await browser.storage.local.get(['newsDomains', 'blockedDomains']) as {
+    newsDomains?: string[];
+    blockedDomains?: string[];
+  };
+  if (stored.newsDomains?.length) newsDomains = new Set(stored.newsDomains);
+  if (stored.blockedDomains?.length) blockedDomains = new Set(stored.blockedDomains);
+
   const url = window.location.href;
-  const isArticle = !isBlockedDomain(url) && isNewsArticle();
-  chrome.runtime.sendMessage({ type: 'ARTICLE_STATUS', isArticle }).catch(() => {
+  const isArticle = !isBlockedDomain(url, blockedDomains) && isNewsArticle();
+  browser.runtime.sendMessage({ type: 'ARTICLE_STATUS', isArticle }).catch(() => {
     // Service worker may be suspended — not critical.
   });
-}());
+})();
 
 // ─── DOM extraction ───────────────────────────────────────────────────────────
 
 function extractContent(): ExtractContentResult {
-  if (isBlockedDomain(window.location.href)) return { blocked: true };
+  if (isBlockedDomain(window.location.href, blockedDomains)) return { blocked: true };
   if (!isNewsArticle()) return { notArticle: true };
   return { content: extractArticleContent() };
 }
@@ -58,7 +77,7 @@ export function extractArticleContent(): ArticleContent {
  */
 function isNewsArticle(): boolean {
   // 0. Known news domain — trust it without inspecting the DOM further
-  if (isKnownNewsDomain(window.location.href)) return true;
+  if (isKnownNewsDomain(window.location.href, newsDomains)) return true;
 
   // 1. JSON-LD
   const NEWS_TYPES = new Set([
@@ -254,5 +273,5 @@ function detectLanguage(): 'de' | 'en' | 'unknown' {
 export async function triggerScan(): Promise<void> {
   const content = extractArticleContent();
   const message: ScanPageMessage = { type: 'SCAN_PAGE', content };
-  chrome.runtime.sendMessage(message);
+  browser.runtime.sendMessage(message);
 }

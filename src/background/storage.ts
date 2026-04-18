@@ -3,6 +3,7 @@
  * All reads/writes go through this module so the schema stays consistent.
  */
 
+import browser from 'webextension-polyfill';
 import type {
   StorageSchema,
   PoliticianData,
@@ -11,8 +12,7 @@ import type {
   StreakData,
 } from '../types/index.js';
 
-// Normalize between chrome.storage and browser.storage (Firefox)
-const storage = typeof browser !== 'undefined' ? browser.storage : chrome.storage;
+const storage = browser.storage;
 
 // ─── Generic helpers ──────────────────────────────────────────────────────────
 
@@ -38,6 +38,10 @@ export async function setPoliticians(politicians: PoliticianData[]): Promise<voi
 
 export async function getPoliticiansUpdatedAt(): Promise<number> {
   return (await get('politiciansUpdatedAt')) ?? 0;
+}
+
+export async function touchPoliticiansUpdatedAt(): Promise<void> {
+  await set('politiciansUpdatedAt', Date.now());
 }
 
 export async function getPoliticiansETag(): Promise<string> {
@@ -127,6 +131,24 @@ export async function unlockAchievement(id: string): Promise<boolean> {
   return true;
 }
 
+// ─── Domain lists ────────────────────────────────────────────────────────────
+
+export async function getNewsDomains(): Promise<string[]> {
+  return (await get('newsDomains')) ?? [];
+}
+
+export async function setNewsDomains(domains: string[]): Promise<void> {
+  await set('newsDomains', domains);
+}
+
+export async function getBlockedDomains(): Promise<string[]> {
+  return (await get('blockedDomains')) ?? [];
+}
+
+export async function setBlockedDomains(domains: string[]): Promise<void> {
+  await set('blockedDomains', domains);
+}
+
 // ─── Storage usage ────────────────────────────────────────────────────────────
 
 /** Returns approximate used bytes and the 5MB quota. */
@@ -134,14 +156,26 @@ export async function getStorageStats(): Promise<{ usedBytes: number; quotaBytes
   const bytesInUse = await storage.local.getBytesInUse?.() ?? 0;
   return {
     usedBytes: bytesInUse,
-    quotaBytes: (chrome.storage.local as { QUOTA_BYTES?: number }).QUOTA_BYTES ?? 5_242_880,
+    quotaBytes: 5_242_880,
   };
+}
+
+function isValidCaughtEntry(entry: unknown): entry is CaughtPolitician {
+  if (typeof entry !== 'object' || entry === null) return false;
+  const e = entry as Record<string, unknown>;
+  return (
+    typeof e.xp === 'number' && e.xp >= 0 &&
+    typeof e.level === 'number' && e.level >= 0 &&
+    typeof e.caughtAt === 'number' &&
+    typeof e.articleCount === 'number' && e.articleCount >= 0 &&
+    typeof e.lastSeenAt === 'number'
+  );
 }
 
 /**
  * Merges imported caught data into existing storage.
  * New entries are added; existing entries are kept as-is (local progress wins).
- * Returns the number of newly imported entries.
+ * Invalid entries are skipped. Returns the number of newly imported entries.
  */
 export async function importCollection(
   incoming: Record<string, CaughtPolitician>
@@ -149,7 +183,7 @@ export async function importCollection(
   const caught = await getCaught();
   let count = 0;
   for (const [id, entry] of Object.entries(incoming)) {
-    if (!(id in caught)) {
+    if (!(id in caught) && isValidCaughtEntry(entry)) {
       caught[id] = entry;
       count++;
     }

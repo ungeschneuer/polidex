@@ -8,6 +8,7 @@
  * to prevent XSS — no innerHTML with external data.
  */
 
+import browser from 'webextension-polyfill';
 import './popup.css';
 import type {
   ExtractContentResult,
@@ -56,6 +57,7 @@ const scanStatus       = el('scan-status');
 const resultsEl        = el('results');
 const resultsCount     = el('results-count');
 const articleBadge     = el('article-badge');
+const btnCatchAll      = el<HTMLButtonElement>('btn-catch-all');
 const candidateList    = el('candidate-list');
 const emptyState       = el('empty-state');
 const streakDisplay    = el('streak-display');
@@ -92,6 +94,10 @@ const btnCloseHelp     = el<HTMLButtonElement>('btn-close-help');
 const achievementToast     = el('achievement-toast');
 const achievementToastName = el('achievement-toast-name');
 
+const pinBanner        = el('pin-banner');
+const btnDismissPin    = el<HTMLButtonElement>('btn-dismiss-pin');
+const btnOpenWelcome   = el<HTMLButtonElement>('btn-open-welcome');
+
 // ─── Init ─────────────────────────────────────────────────────────────────────
 
 document.querySelectorAll<HTMLButtonElement>('.tab-btn').forEach(btn => {
@@ -106,6 +112,7 @@ btnSync.addEventListener('click', handleSyncNow);
 btnExport.addEventListener('click', handleExport);
 btnImport.addEventListener('click', () => importFile.click());
 importFile.addEventListener('change', handleImport);
+btnCatchAll.addEventListener('click', handleCatchAll);
 dexSearch.addEventListener('input', renderDex);
 dexSort.addEventListener('change', renderDex);
 
@@ -119,12 +126,34 @@ document.addEventListener('keydown', e => {
 loadDex();
 loadSyncStatus();
 loadStreak();
+loadPinBanner();
+
+btnDismissPin.addEventListener('click', async () => {
+  pinBanner.classList.add('hidden');
+  await browser.storage.local.set({ pinReminderDismissed: true });
+});
+
+btnOpenWelcome.addEventListener('click', () => {
+  browser.tabs.create({ url: browser.runtime.getURL('welcome.html') });
+  window.close();
+});
+
+// ─── Pin reminder ─────────────────────────────────────────────────────────────
+
+async function loadPinBanner() {
+  const stored = await browser.storage.local.get('pinReminderDismissed') as { pinReminderDismissed?: boolean };
+  if (!stored.pinReminderDismissed) {
+    pinBanner.classList.remove('hidden');
+  }
+}
 
 // ─── Tab navigation ───────────────────────────────────────────────────────────
 
 function switchTab(tab: 'scan' | 'dex') {
-  document.querySelectorAll('.tab-btn').forEach(b => {
-    b.classList.toggle('active', (b as HTMLButtonElement).dataset.tab === tab);
+  document.querySelectorAll<HTMLButtonElement>('.tab-btn').forEach(b => {
+    const isActive = b.dataset.tab === tab;
+    b.classList.toggle('active', isActive);
+    b.setAttribute('aria-selected', String(isActive));
   });
   tabScan.classList.toggle('hidden', tab !== 'scan');
   tabDex.classList.toggle('hidden',  tab !== 'dex');
@@ -134,9 +163,7 @@ function switchTab(tab: 'scan' | 'dex') {
 // ─── Streak display ───────────────────────────────────────────────────────────
 
 async function loadStreak() {
-  const state = await chrome.runtime.sendMessage<unknown, GameStateDataMessage>({
-    type: 'GET_GAME_STATE',
-  });
+  const state = await browser.runtime.sendMessage({ type: 'GET_GAME_STATE' }) as GameStateDataMessage;
   renderStreak(state.streak);
   renderAchievements(state.achievements);
 }
@@ -157,12 +184,10 @@ async function handleScan() {
   setScanState('scanning');
 
   try {
-    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    const [tab] = await browser.tabs.query({ active: true, currentWindow: true });
     if (!tab?.id) throw new Error('No active tab');
 
-    const extracted = await chrome.tabs.sendMessage<unknown, ExtractContentResult>(
-      tab.id, { type: 'EXTRACT_CONTENT' }
-    );
+    const extracted = await browser.tabs.sendMessage(tab.id, { type: 'EXTRACT_CONTENT' }) as ExtractContentResult;
 
     if (extracted?.blocked) {
       setScanState('idle');
@@ -182,10 +207,10 @@ async function handleScan() {
       return;
     }
 
-    const [result, dexData] = await Promise.all([
-      chrome.runtime.sendMessage<unknown, ScanResultMessage>({ type: 'SCAN_PAGE', content }),
-      chrome.runtime.sendMessage<unknown, PokedexDataMessage>({ type: 'GET_POKEDEX' }),
-    ]);
+    const [result, dexData] = (await Promise.all([
+      browser.runtime.sendMessage({ type: 'SCAN_PAGE', content }),
+      browser.runtime.sendMessage({ type: 'GET_POKEDEX' }),
+    ])) as [ScanResultMessage, PokedexDataMessage];
 
     currentCandidates = result.candidates;
     currentArticleHash = result.articleHash;
@@ -202,13 +227,13 @@ async function handleScan() {
     if (tab.id !== undefined) {
       const newCatches = result.candidates.filter(c => !caughtIds.has(c.politician.id)).length;
       if (result.candidates.length === 0) {
-        chrome.action.setBadgeText({ text: '', tabId: tab.id });
+        browser.action.setBadgeText({ text: '', tabId: tab.id });
       } else if (newCatches > 0) {
-        chrome.action.setBadgeText({ text: String(newCatches), tabId: tab.id });
-        chrome.action.setBadgeBackgroundColor({ color: '#e94560', tabId: tab.id });
+        browser.action.setBadgeText({ text: String(newCatches), tabId: tab.id });
+        browser.action.setBadgeBackgroundColor({ color: '#ed4560', tabId: tab.id });
       } else {
-        chrome.action.setBadgeText({ text: String(result.candidates.length), tabId: tab.id });
-        chrome.action.setBadgeBackgroundColor({ color: '#4caf50', tabId: tab.id });
+        browser.action.setBadgeText({ text: String(result.candidates.length), tabId: tab.id });
+        browser.action.setBadgeBackgroundColor({ color: '#4caf50', tabId: tab.id });
       }
     }
   } catch (err) {
@@ -267,6 +292,7 @@ function renderResults(result: ScanResultMessage, caughtIds: Set<string>) {
   if (result.candidates.length === 0) {
     resultsEl.classList.add('hidden');
     emptyState.classList.remove('hidden');
+    btnCatchAll.classList.add('hidden');
     return;
   }
 
@@ -276,6 +302,9 @@ function renderResults(result: ScanResultMessage, caughtIds: Set<string>) {
   resultsCount.textContent = `${result.candidates.length} gefunden`;
   articleBadge.textContent = result.alreadyScanned ? 'bereits gescannt' : 'neuer Artikel';
   articleBadge.className = `badge ${result.alreadyScanned ? 'seen' : 'new'}`;
+
+  const hasUncaught = result.candidates.some(c => !caughtIds.has(c.politician.id));
+  btnCatchAll.classList.toggle('hidden', !hasUncaught);
 
   for (const candidate of result.candidates) {
     candidateList.appendChild(
@@ -319,6 +348,7 @@ function buildCandidateItem(candidate: MatchCandidate, isCaught: boolean): HTMLL
   const dot = document.createElement('span');
   dot.style.color = PRESENCE_COLORS[rarity];
   dot.textContent = '\u25CF';
+  dot.setAttribute('aria-hidden', 'true');
   meta.appendChild(dot);
   meta.append(' ');
 
@@ -352,12 +382,12 @@ function buildCandidateItem(candidate: MatchCandidate, isCaught: boolean): HTMLL
     const lbl = document.createElement('span');
     lbl.className = 'btn btn-secondary';
     lbl.style.cssText = 'font-size:10px;padding:3px 6px';
-    lbl.textContent = 'GEFANGEN';
+    lbl.textContent = 'GESAMMELT';
     actions.appendChild(lbl);
   } else {
     const catchBtn = document.createElement('button');
     catchBtn.className = 'btn btn-catch';
-    catchBtn.textContent = 'FANGEN!';
+    catchBtn.textContent = 'SAMMELN!';
     catchBtn.addEventListener('click', async e => {
       e.stopPropagation();
       await handleCatch(p.id, candidate.inHeadline);
@@ -376,14 +406,14 @@ function buildCandidateItem(candidate: MatchCandidate, isCaught: boolean): HTMLL
 // ─── Catch ────────────────────────────────────────────────────────────────────
 
 async function handleCatch(politicianId: string, inHeadline = false) {
-  const result = await chrome.runtime.sendMessage<unknown, CatchResultMessage>({
+  const result = await browser.runtime.sendMessage({
     type: 'CATCH_POLITICIAN',
     politicianId,
     articleHash:  currentArticleHash,
     articleUrl:   currentArticleUrl,
     articleTitle: currentArticleTitle,
     inHeadline,
-  });
+  }) as CatchResultMessage;
 
   if (result.success && result.entry) {
     animateItem(politicianId, 'catch-anim');
@@ -394,6 +424,17 @@ async function handleCatch(politicianId: string, inHeadline = false) {
     candidateList.querySelector<HTMLElement>(`[data-id="${politicianId}"]`)
       ?.classList.add('caught');
   }
+}
+
+async function handleCatchAll() {
+  btnCatchAll.disabled = true;
+  for (const candidate of currentCandidates) {
+    const item = candidateList.querySelector<HTMLElement>(`[data-id="${candidate.politician.id}"]`);
+    if (!item?.classList.contains('caught')) {
+      await handleCatch(candidate.politician.id, candidate.inHeadline);
+    }
+  }
+  btnCatchAll.disabled = false;
 }
 
 function animateItem(id: string, cls: string) {
@@ -413,20 +454,22 @@ function markItemCaught(id: string) {
     const lbl = document.createElement('span');
     lbl.className = 'btn btn-secondary';
     lbl.style.cssText = 'font-size:10px;padding:3px 6px';
-    lbl.textContent = 'GEFANGEN';
+    lbl.textContent = 'GESAMMELT';
     actions.appendChild(lbl);
   }
+  const allCaught = !candidateList.querySelector('.candidate-item:not(.caught)');
+  if (allCaught) btnCatchAll.classList.add('hidden');
 }
 
 // ─── Dex ──────────────────────────────────────────────────────────────────────
 
 async function loadDex() {
-  const [result, syncStatus, allData, gameState] = await Promise.all([
-    chrome.runtime.sendMessage<unknown, PokedexDataMessage>({ type: 'GET_POKEDEX' }),
-    chrome.runtime.sendMessage<unknown, SyncStatusDataMessage>({ type: 'GET_SYNC_STATUS' }),
-    chrome.runtime.sendMessage<unknown, AllPoliticiansDataMessage>({ type: 'GET_ALL_POLITICIANS' }),
-    chrome.runtime.sendMessage<unknown, GameStateDataMessage>({ type: 'GET_GAME_STATE' }),
-  ]);
+  const [result, syncStatus, allData, gameState] = (await Promise.all([
+    browser.runtime.sendMessage({ type: 'GET_POKEDEX' }),
+    browser.runtime.sendMessage({ type: 'GET_SYNC_STATUS' }),
+    browser.runtime.sendMessage({ type: 'GET_ALL_POLITICIANS' }),
+    browser.runtime.sendMessage({ type: 'GET_GAME_STATE' }),
+  ])) as [PokedexDataMessage, SyncStatusDataMessage, AllPoliticiansDataMessage, GameStateDataMessage];
   dexEntries = result.entries;
   allPoliticians = allData.politicians;
   totalPoliticians = syncStatus.politiciansCount || allPoliticians.length;
@@ -533,7 +576,7 @@ function renderStats(): void {
   const grid = document.createElement('div');
   grid.className = 'stats-overview-grid';
   for (const [k, v] of [
-    ['Gefangen',       `${dexEntries.length} / ${totalPoliticians}`],
+    ['Gesammelt',      `${dexEntries.length} / ${totalPoliticians}`],
     ['Gesamt-XP',      String(totalXp)],
     ['Gesamtartikel',  String(totalArticles)],
     ['Höchstes Lv.',   String(maxLevel)],
@@ -548,7 +591,33 @@ function renderStats(): void {
   overviewBlock.appendChild(grid);
   statsContent.appendChild(overviewBlock);
 
-  // Block B — Medienpräsenz
+  // Block B — Wahlperioden
+  const PERIOD_LABELS: Record<number, string> = {
+    16: 'WP16  2005–09',
+    17: 'WP17  2009–13',
+    18: 'WP18  2013–17',
+    19: 'WP19  2017–21',
+    20: 'WP20  2021–25',
+    21: 'WP21  2025–',
+  };
+  const periodsBlock = makeStatsBlock('FORTSCHRITT JE WAHLPERIODE');
+  const wpTotals = new Map<number, number>();
+  const wpCaught = new Map<number, number>();
+  for (const p of allPoliticians) {
+    for (const wp of p.periodsActive) wpTotals.set(wp, (wpTotals.get(wp) ?? 0) + 1);
+  }
+  for (const e of dexEntries) {
+    for (const wp of e.periodsActive) wpCaught.set(wp, (wpCaught.get(wp) ?? 0) + 1);
+  }
+  for (const wp of [...wpTotals.keys()].sort((a, b) => b - a)) {
+    const tot = wpTotals.get(wp) ?? 0;
+    const c   = wpCaught.get(wp) ?? 0;
+    const pct = tot > 0 ? Math.round((c / tot) * 100) : 0;
+    periodsBlock.appendChild(buildStatsBar(PERIOD_LABELS[wp] ?? `WP${wp}`, c, pct, '#607d8b', `${c} / ${tot}`));
+  }
+  statsContent.appendChild(periodsBlock);
+
+  // Block C — Medienpräsenz
   const presenceBlock  = makeStatsBlock('MEDIENPRÄSENZ');
   const presenceCounts = new Map<string, number>();
   for (const e of dexEntries) {
@@ -562,7 +631,7 @@ function renderStats(): void {
   }
   statsContent.appendChild(presenceBlock);
 
-  // Block C — Typenverteilung
+  // Block D — Typenverteilung
   const typeBlock  = makeStatsBlock('TYPEN');
   const typeCounts = new Map<string, number>();
   for (const e of dexEntries) {
@@ -576,8 +645,8 @@ function renderStats(): void {
   }
   statsContent.appendChild(typeBlock);
 
-  // Block D — Fangaktivität
-  const heatBlock = makeStatsBlock('FANGAKTIVITÄT');
+  // Block E — Sammelaktivität
+  const heatBlock = makeStatsBlock('SAMMELAKTIVITÄT');
   heatBlock.appendChild(buildHeatmap());
   statsContent.appendChild(heatBlock);
 }
@@ -592,7 +661,7 @@ function makeStatsBlock(title: string): HTMLDivElement {
   return block;
 }
 
-function buildStatsBar(label: string, count: number, pct: number, color: string): HTMLDivElement {
+function buildStatsBar(label: string, count: number, pct: number, color: string, countText?: string): HTMLDivElement {
   const row = document.createElement('div');
   row.className = 'stats-bar-row';
   const lbl = document.createElement('span'); lbl.className = 'stats-bar-label'; lbl.textContent = label;
@@ -600,7 +669,7 @@ function buildStatsBar(label: string, count: number, pct: number, color: string)
   const bar = document.createElement('div');  bar.className  = 'stats-bar';
   bar.style.width = `${pct}%`; bar.style.backgroundColor = color;
   wrap.appendChild(bar);
-  const cnt = document.createElement('span'); cnt.className = 'stats-bar-count'; cnt.textContent = String(count);
+  const cnt = document.createElement('span'); cnt.className = 'stats-bar-count'; cnt.textContent = countText ?? String(count);
   row.appendChild(lbl); row.appendChild(wrap); row.appendChild(cnt);
   return row;
 }
@@ -622,7 +691,7 @@ function buildHeatmap(): HTMLDivElement {
     const cell  = document.createElement('div');
     const level = count === 0 ? 0 : count === 1 ? 1 : count <= 3 ? 2 : 3;
     cell.className = `heat-cell heat-${level}`;
-    cell.title = `${key}: ${count} gefangen`;
+    cell.title = `${key}: ${count} gesammelt`;
     grid.appendChild(cell);
   }
   return grid;
@@ -745,6 +814,10 @@ function buildDexItem(entry: PokedexEntry): HTMLLIElement {
   name.className = 'dex-name';
   name.style.color = PRESENCE_COLORS[rarity];
   name.textContent = buildDisplayName(entry);
+  const rarityHint = document.createElement('span');
+  rarityHint.className = 'sr-only';
+  rarityHint.textContent = ` (${PRESENCE_LABELS[rarity]})`;
+  name.appendChild(rarityHint);
 
   const sub = document.createElement('div');
   sub.className = 'dex-sub';
@@ -988,7 +1061,7 @@ function showCard(cfg: CardConfig) {
 
     const label = document.createElement('span');
     label.className = 'stat-label';
-    label.textContent = 'Gefangen in ';
+    label.textContent = 'Gesammelt in ';
     caughtEl.appendChild(label);
 
     const link = document.createElement('a');
@@ -997,7 +1070,12 @@ function showCard(cfg: CardConfig) {
     link.title = cfg.caughtUrl;
     link.addEventListener('click', e => {
       e.preventDefault();
-      chrome.tabs.create({ url: cfg.caughtUrl });
+      try {
+        const parsed = new URL(cfg.caughtUrl!);
+        if (parsed.protocol === 'https:' || parsed.protocol === 'http:') {
+          browser.tabs.create({ url: cfg.caughtUrl });
+        }
+      } catch { /* invalid URL */ }
     });
     caughtEl.appendChild(link);
 
@@ -1015,9 +1093,7 @@ function showCard(cfg: CardConfig) {
 // ─── Sync status ──────────────────────────────────────────────────────────────
 
 async function loadSyncStatus() {
-  const status = await chrome.runtime.sendMessage<unknown, SyncStatusDataMessage>({
-    type: 'GET_SYNC_STATUS',
-  });
+  const status = await browser.runtime.sendMessage({ type: 'GET_SYNC_STATUS' }) as SyncStatusDataMessage;
 
   if (status.syncInProgress) {
     syncLabel.textContent = 'Daten werden synchronisiert...';
@@ -1052,15 +1128,15 @@ async function handleSyncNow() {
   btnSync.disabled = true;
   syncLabel.textContent = 'Synchronisiere...';
   syncLabel.className = 'sync-label';
-  await chrome.runtime.sendMessage({ type: 'SYNC_POLITICIANS' });
-  btnSync.disabled = false;
+  await browser.runtime.sendMessage({ type: 'SYNC_POLITICIANS' });
   await loadSyncStatus();
+  setTimeout(() => { btnSync.disabled = false; }, 60_000);
 }
 
 // ─── Export / Import ──────────────────────────────────────────────────────────
 
 async function handleExport() {
-  const result = await chrome.runtime.sendMessage<unknown, PokedexDataMessage>({ type: 'GET_POKEDEX' });
+  const result = await browser.runtime.sendMessage({ type: 'GET_POKEDEX' }) as PokedexDataMessage;
   if (result.entries.length === 0) {
     showStatus('Noch nichts zum Exportieren.');
     return;
@@ -1095,6 +1171,11 @@ async function handleImport() {
   if (!file) return;
   importFile.value = '';
 
+  if (file.size > 2_000_000) {
+    showStatus('Datei zu groß (max. 2 MB).');
+    return;
+  }
+
   try {
     const text = await file.text();
     const parsed = JSON.parse(text) as { version?: number; caught?: unknown };
@@ -1109,10 +1190,10 @@ async function handleImport() {
       return;
     }
 
-    const result = await chrome.runtime.sendMessage<unknown, ImportResultMessage>({
+    const result = await browser.runtime.sendMessage({
       type: 'IMPORT_COLLECTION',
       caught: parsed.caught,
-    });
+    }) as ImportResultMessage;
 
     if (result.error) {
       showStatus(`Import fehlgeschlagen: ${result.error}`);
@@ -1132,7 +1213,7 @@ function buildDisplayName(p: { title?: string; firstName: string; lastName: stri
 }
 
 async function updateDexCount() {
-  const r = await chrome.runtime.sendMessage<unknown, PokedexDataMessage>({ type: 'GET_POKEDEX' });
+  const r = await browser.runtime.sendMessage({ type: 'GET_POKEDEX' }) as PokedexDataMessage;
   updateDexProgress(r.totalCaught);
 }
 

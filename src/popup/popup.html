@@ -11,14 +11,16 @@
 
     <!-- Header -->
     <header class="header">
-      <span class="logo">POLIDEX</span>
-      <button class="tab-btn active" data-tab="scan">Scan</button>
-      <button class="tab-btn" data-tab="dex">Sammlung</button>
-      <button id="btn-help" class="btn-help" title="Spielregeln">?</button>
+      <span class="logo" role="heading" aria-level="1" aria-label="Polidex">POLIDEX</span>
+      <div role="tablist" aria-label="Ansicht">
+        <button class="tab-btn active" data-tab="scan" role="tab" aria-selected="true" aria-controls="tab-scan" id="tab-btn-scan">Scan</button>
+        <button class="tab-btn" data-tab="dex" role="tab" aria-selected="false" aria-controls="tab-dex" id="tab-btn-dex">Sammlung</button>
+      </div>
+      <button id="btn-help" class="btn-help" title="Spielregeln" aria-label="Spielregeln">?</button>
     </header>
 
     <!-- ── Tab: Scan ── -->
-    <div id="tab-scan" class="tab active">
+    <div id="tab-scan" class="tab active" role="tabpanel" aria-labelledby="tab-btn-scan">
       <div class="scan-area">
         <div class="scan-top">
           <button id="btn-scan" class="btn btn-primary btn-scan">
@@ -30,7 +32,7 @@
             <span id="streak-count" class="streak-count"></span>
           </div>
         </div>
-        <div id="scan-status" class="scan-status"></div>
+        <div id="scan-status" class="scan-status" aria-live="polite" aria-atomic="true"></div>
         <div id="sync-info" class="sync-info">
           <span id="sync-label" class="sync-label"></span>
           <button id="btn-sync" class="btn btn-sync hidden">JETZT SYNC</button>
@@ -42,19 +44,20 @@
         <div class="results-header">
           <span id="results-count" class="results-count"></span>
           <span id="article-badge" class="badge"></span>
+          <button id="btn-catch-all" class="btn btn-primary btn-sm hidden">ALLE SAMMELN</button>
         </div>
         <ul id="candidate-list" class="candidate-list"></ul>
       </div>
 
       <!-- Empty state -->
       <div id="empty-state" class="empty-state hidden">
-        <div class="pixel-art-icon">&#x1F4F0;</div>
-        <p>Keine Politiker auf dieser Seite gefunden.</p>
+        <div class="pixel-art-icon" aria-hidden="true">&#x1F4F0;</div>
+        <p>Keine Politiker*innen auf dieser Seite gefunden.</p>
       </div>
     </div>
 
     <!-- ── Tab: Dex ── -->
-    <div id="tab-dex" class="tab hidden">
+    <div id="tab-dex" class="tab hidden" role="tabpanel" aria-labelledby="tab-btn-dex">
       <div class="dex-header">
         <div class="dex-progress">
           <span id="dex-count" class="dex-count">0 / 0</span>
@@ -93,7 +96,7 @@
           <option value="recent">Zuletzt</option>
           <option value="level">Level</option>
           <option value="name">A–Z</option>
-          <option value="uncaught">Nicht gefangen</option>
+          <option value="uncaught">Nicht gesammelt</option>
           <option value="longevity">Erfahrung</option>
           <option value="articles">Artikel</option>
           <option value="rarity">Seltenheit</option>
@@ -102,15 +105,21 @@
       </div>
       <ul id="dex-list" class="dex-list"></ul>
       <div id="dex-empty" class="empty-state hidden">
-        <div class="pixel-art-icon">&#x1F50D;</div>
-        <p>Deine Sammlung ist leer.<br>Scanne Nachrichtenartikel, um Politiker zu fangen!</p>
+        <div class="pixel-art-icon" aria-hidden="true">&#x1F50D;</div>
+        <p>Deine Sammlung ist leer.<br>Scanne Nachrichtenartikel, um Politiker*innen zu sammeln!</p>
       </div>
       <div id="dex-no-results" class="empty-state hidden">
-        <div class="pixel-art-icon">&#x2205;</div>
+        <div class="pixel-art-icon" aria-hidden="true">&#x2205;</div>
         <p>Keine Ergebnisse gefunden.</p>
       </div>
     </div>
 
+  </div>
+
+  <!-- Pin reminder banner -->
+  <div id="pin-banner" class="pin-banner hidden">
+    <button id="btn-open-welcome" class="pin-banner-text">Neu? Anleitung &amp; Anpinnen &rarr;</button>
+    <button id="btn-dismiss-pin" class="pin-banner-dismiss" title="Schlie&szlig;en">&times;</button>
   </div>
 
   <!-- Achievement toast -->
@@ -136,43 +145,44 @@
       <h2 class="help-title">Spielregeln</h2>
 
       <section class="help-section">
-        <h3 class="help-section-title">&#x1F50D; Scannen</h3>
-        <p>Öffne einen Nachrichtenartikel und klicke <strong>Seite scannen</strong>. Polidex erkennt automatisch Erwähnungen von Bundestagsabgeordneten im Text.</p>
+        <h3 class="help-section-title"><span aria-hidden="true">&#x1F50D;</span> Scannen</h3>
+        <p>Öffne einen Nachrichtenartikel und klicke <strong>Seite scannen</strong>. Polidex erkennt automatisch Erwähnungen von Bundestagsabgeordnete*n im Text.</p>
       </section>
 
       <section class="help-section">
-        <h3 class="help-section-title">&#x26A1; Fangen</h3>
-        <p>Klicke <strong>Fangen!</strong> bei einem erkannten Politiker, um ihn deiner Sammlung hinzuzufügen. Jeden Politiker kannst du nur <em>einmal</em> fangen.</p>
+        <h3 class="help-section-title"><span aria-hidden="true">&#x26A1;</span> Sammeln</h3>
+        <p>Klicke <strong>Sammeln!</strong> bei einer*einem erkannten Politiker*in, um sie*ihn deiner Sammlung hinzuzufügen. Jede*n Politiker*in kannst du nur <em>einmal</em> sammeln.</p>
       </section>
 
       <section class="help-section">
-        <h3 class="help-section-title">&#x2B06; XP &amp; Level</h3>
-        <p>Scanne neue Artikel mit bereits gefangenen Politikern, um ihnen XP zu geben. Jeder neue Artikel gibt <strong>+10 XP</strong>, Artikel in denen sie in der Schlagzeile stehen <strong>+15 XP</strong>. Level steigt mit &radic;XP.</p>
+        <h3 class="help-section-title"><span aria-hidden="true">&#x2B06;</span> XP &amp; Level</h3>
+        <p>Scanne neue Artikel mit bereits gefangenen Politiker*innen, um ihnen XP zu geben. Jeder neue Artikel gibt <strong>+10 XP</strong>, Artikel in denen sie in der Schlagzeile stehen <strong>+15 XP</strong>. Level steigt mit &radic;XP.</p>
       </section>
 
       <section class="help-section">
-        <h3 class="help-section-title">&#x1F525; Scan-Serie</h3>
+        <h3 class="help-section-title"><span aria-hidden="true">&#x1F525;</span> Scan-Serie</h3>
         <p>Scanne jeden Tag Artikel, um eine Serie aufzubauen. Pro 3 Seriertage gibt es <strong>+10% XP-Bonus</strong>, maximal <strong>2&times;</strong> (ab Tag 30).</p>
       </section>
 
       <section class="help-section">
-        <h3 class="help-section-title">&#x2605; Medienpräsenz</h3>
-        <p>Basiert auf der Aktivität des Politikers in den Medien.</p>
+        <h3 class="help-section-title"><span aria-hidden="true">&#x2605;</span> Medienpräsenz</h3>
+        <p>Basiert auf der Aktivität der*des Politiker*in in den Medien.</p>
         <ul class="help-presence-list">
-          <li><span class="presence-dot" style="color:#9c27b0">&#x25CF;</span> Kaum bekannt &mdash; kaum in den Medien</li>
-          <li><span class="presence-dot" style="color:#2196f3">&#x25CF;</span> Wenig präsent</li>
-          <li><span class="presence-dot" style="color:#4caf50">&#x25CF;</span> Präsent</li>
-          <li><span class="presence-dot" style="color:#9e9e9e">&#x25CF;</span> Sehr präsent &mdash; stark vertreten</li>
+          <li><span class="presence-dot" style="color:#9c27b0" aria-hidden="true">&#x25CF;</span> Kaum bekannt &mdash; kaum in den Medien</li>
+          <li><span class="presence-dot" style="color:#2196f3" aria-hidden="true">&#x25CF;</span> Wenig präsent</li>
+          <li><span class="presence-dot" style="color:#4caf50" aria-hidden="true">&#x25CF;</span> Präsent</li>
+          <li><span class="presence-dot" style="color:#9e9e9e" aria-hidden="true">&#x25CF;</span> Sehr präsent &mdash; stark vertreten</li>
         </ul>
       </section>
 
       <section class="help-section">
-        <h3 class="help-section-title">&#x1F3AF; Ziel</h3>
-        <p>Fange alle <strong>629 aktiven Bundestagsabgeordneten</strong> des 21. Bundestags!</p>
+        <h3 class="help-section-title"><span aria-hidden="true">&#x1F3AF;</span> Ziel</h3>
+        <p>Sammle alle <strong>1.865 Bundestagsabgeordnete*n</strong> der Wahlperioden&nbsp;16 bis&nbsp;21 (2005 bis heute).</p>
+        <p>Den Einstieg bildet der <strong>21.&thinsp;Bundestag (2025&ndash;)</strong> mit 630&nbsp;Abgeordneten. Dazu kommen alle historischen Abgeordneten der Wahlperioden&nbsp;16&ndash;20 &mdash; viele davon saßen in mehreren Perioden, weshalb die Gesamtzahl einzigartiger Politiker*innen 1.865 betr&auml;gt.</p>
       </section>
 
       <section class="help-section">
-        <h3 class="help-section-title">&#x26D4; Gesperrte Seiten</h3>
+        <h3 class="help-section-title"><span aria-hidden="true">&#x26D4;</span> Gesperrte Seiten</h3>
         <p>Partei-, Fraktions- und Regierungswebsites werden nicht gescannt (z.&thinsp;B. spd.de, bundestag.de).</p>
       </section>
     </div>

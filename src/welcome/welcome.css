@@ -1,0 +1,340 @@
+/* ─── Welcome page — same pixel-art design tokens as popup ──────────────── */
+
+:root {
+  --bg:          #1a1a2e;
+  --bg-surface:  #16213e;
+  --bg-card:     #0f3460;
+  --accent:      #ed4560;
+  --accent-2:    #f5a623;
+  --text:        #e0e0e0;
+  --text-muted:  #a0a0c0;
+  --border:      #334466;
+  --font:        'Courier New', 'Lucida Console', monospace;
+  --max-w:       760px;
+  --shadow:      2px 2px 0 #000;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html {
+  scroll-behavior: smooth;
+  background: var(--bg);
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 14px;
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+/* ─── Page shell ────────────────────────────────────────────────────────── */
+
+.page {
+  max-width: var(--max-w);
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+/* ─── Hero ──────────────────────────────────────────────────────────────── */
+
+.hero {
+  padding: 56px 0 40px;
+  text-align: center;
+  border-bottom: 2px solid var(--border);
+  position: relative;
+}
+
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 3px,
+    rgba(255,255,255,0.015) 3px,
+    rgba(255,255,255,0.015) 4px
+  );
+  pointer-events: none;
+}
+
+.logo {
+  font-size: 48px;
+  font-weight: 900;
+  letter-spacing: 8px;
+  color: var(--accent);
+  text-shadow: 4px 4px 0 #000;
+  margin-bottom: 16px;
+}
+
+.tagline {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--accent-2);
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+}
+
+.sub {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+/* ─── Main content ──────────────────────────────────────────────────────── */
+
+.content {
+  padding: 0 0 40px;
+}
+
+.section {
+  padding: 48px 0 0;
+  border-top: 2px solid var(--border);
+  margin-top: 48px;
+}
+
+.section:first-child {
+  border-top: none;
+  margin-top: 0;
+}
+
+.section-label {
+  font-size: 11px;
+  letter-spacing: 3px;
+  color: var(--accent);
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.section-title {
+  font-size: 20px;
+  font-weight: 900;
+  letter-spacing: 2px;
+  color: var(--text);
+  text-shadow: var(--shadow);
+  margin-bottom: 24px;
+}
+
+.intro-text {
+  font-size: 14px;
+  color: var(--text-muted);
+  margin-bottom: 24px;
+  line-height: 1.7;
+}
+
+/* ─── Steps ─────────────────────────────────────────────────────────────── */
+
+.steps {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+@media (max-width: 540px) {
+  .steps { grid-template-columns: 1fr; }
+}
+
+.step {
+  display: flex;
+  gap: 14px;
+  background: var(--bg-surface);
+  border: 2px solid var(--border);
+  box-shadow: var(--shadow);
+  padding: 16px;
+}
+
+.step-num {
+  font-size: 28px;
+  font-weight: 900;
+  color: var(--accent);
+  text-shadow: 2px 2px 0 #000;
+  line-height: 1;
+  flex-shrink: 0;
+  width: 42px;
+}
+
+.step-tag {
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+
+.step-title {
+  font-size: 13px;
+  font-weight: 900;
+  letter-spacing: 1px;
+  color: var(--accent-2);
+  margin-bottom: 6px;
+}
+
+.step-desc {
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+/* ─── Pin grid ──────────────────────────────────────────────────────────── */
+
+.pin-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+@media (max-width: 540px) {
+  .pin-grid { grid-template-columns: 1fr; }
+}
+
+.pin-card {
+  background: var(--bg-card);
+  border: 2px solid var(--border);
+  box-shadow: var(--shadow);
+  padding: 18px;
+}
+
+.pin-card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.pin-badge {
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 2px;
+  padding: 2px 8px;
+  box-shadow: var(--shadow);
+}
+
+.pin-badge.chrome { background: var(--accent); color: #fff; }
+.pin-badge.firefox { background: #f5a623; color: #1a1a2e; }
+
+.pin-badge-also {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.pin-steps {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 14px;
+  counter-reset: pinstep;
+}
+
+.pin-steps li {
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.6;
+  counter-increment: pinstep;
+  padding-left: 22px;
+  position: relative;
+}
+
+.pin-steps li::before {
+  content: counter(pinstep) ".";
+  color: var(--accent);
+  font-weight: 900;
+  position: absolute;
+  left: 0;
+}
+
+.pin-steps li strong {
+  color: var(--text);
+}
+
+.pin-result {
+  font-size: 12px;
+  color: var(--accent-2);
+  border-left: 3px solid var(--accent-2);
+  padding-left: 8px;
+}
+
+/* ─── Tips list ─────────────────────────────────────────────────────────── */
+
+.tips-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.tips-list li {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+.tip-check {
+  color: var(--accent);
+  font-weight: 900;
+  font-size: 14px;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.tips-list strong {
+  color: var(--text);
+}
+
+/* ─── Footer / CTA ──────────────────────────────────────────────────────── */
+
+.footer {
+  padding: 40px 0 56px;
+  text-align: center;
+  border-top: 2px solid var(--border);
+  margin-top: 48px;
+}
+
+.btn-start {
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  font-family: var(--font);
+  font-size: 15px;
+  font-weight: 900;
+  letter-spacing: 3px;
+  padding: 14px 40px;
+  cursor: pointer;
+  box-shadow: 4px 4px 0 #000;
+  transition: box-shadow 0.1s, transform 0.1s;
+  display: inline-block;
+  margin-bottom: 20px;
+}
+
+.btn-start:hover {
+  box-shadow: 2px 2px 0 #000;
+  transform: translate(2px, 2px);
+}
+
+.btn-start:active {
+  box-shadow: none;
+  transform: translate(4px, 4px);
+}
+
+.footer-note {
+  font-size: 12px;
+  color: var(--text-muted);
+  max-width: 420px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn-start { transition: none; }
+  html { scroll-behavior: auto; }
+}
