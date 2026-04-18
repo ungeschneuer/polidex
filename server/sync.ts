@@ -115,6 +115,7 @@ export async function syncPoliticians(outputPath: string = DATA_FILE): Promise<n
         periodsActive: [...new Set([...(prev.periodsActive ?? []), currentWP])].sort((a, b) => a - b),
         _qid:          p._qid,
         _awId:         p._awId,
+        _mandateId:    p._mandateId,
         _wp:           p._wp,
         id:            p.id,
         isArchived:    undefined, // clear if they returned to active mandates
@@ -145,11 +146,14 @@ export async function syncPoliticians(outputPath: string = DATA_FILE): Promise<n
 
   // Committee memberships — only the current period.
   console.log(`[sync] Fetching committee memberships (WP${currentPeriod.wp})...`);
-  const committeeMemberships = await fetchCommitteeMemberships(currentPeriod.periodId);
+  const currentMandateIds = new Set(
+    politicians.filter(p => p._mandateId).map(p => p._mandateId!)
+  );
+  const committeeMemberships = await fetchCommitteeMemberships(currentMandateIds);
   console.log(`[sync] Got committee memberships for ${committeeMemberships.size} politicians`);
 
   for (const p of politicians) {
-    const committees = committeeMemberships.get(p._awId) ?? [];
+    const committees = committeeMemberships.get(p._mandateId ?? 0) ?? [];
     if (committees.length > 0) {
       p.committees = committees;
       p.types = committeesToTypes(committees);
@@ -258,6 +262,7 @@ async function fetchParliamentPeriods(): Promise<Array<{ periodId: number; wp: n
 // ─── Abgeordnetenwatch: mandates ──────────────────────────────────────────────
 
 interface AwMandate {
+  id: number;
   type: string;
   end_date: string | null;
   politician: { id: number };
@@ -317,10 +322,11 @@ interface AwPolitician {
   statistic_questions: number | null;
 }
 
-// Internal type: carries Wikidata QID, AW ID, and source WP for merge logic.
+// Internal type: carries Wikidata QID, AW IDs, and source WP for merge logic.
 type PoliticianWithInternals = PoliticianData & {
   _qid?: string;
   _awId: number;
+  _mandateId?: number;
   _wp: number;
 };
 
@@ -358,6 +364,7 @@ async function fetchPoliticianDetails(
         periodsActive:   [],  // set by caller
         _qid:            p.qid_wikidata ?? undefined,
         _awId:           p.id,
+        _mandateId:      batch[j].id,
         _wp:             wp,
       });
     }
@@ -388,14 +395,14 @@ function activeFraction(mandate: AwMandate): string {
   return sorted[0]?.fraction.label ?? '';
 }
 
-function stripInternals({ _qid: _q, _awId: _a, _wp: _w, ...p }: PoliticianWithInternals): PoliticianData {
+function stripInternals({ _qid: _q, _awId: _a, _mandateId: _m, _wp: _w, ...p }: PoliticianWithInternals): PoliticianData {
   return p;
 }
 
 // ─── Abgeordnetenwatch: committee memberships ─────────────────────────────────
 
 interface AwCommitteeMembership {
-  politician: { id: number };
+  candidacy_mandate: { id: number };
   committee: { label: string };
 }
 
@@ -405,17 +412,20 @@ interface AwCommitteeMembershipList {
 }
 
 /**
- * Fetches all committee memberships for a given parliament period.
- * Returns a map of AW politician ID → list of committee labels.
+ * Fetches committee memberships for the given set of mandate IDs.
+ * Returns a map of mandate ID → list of committee labels.
+ *
+ * The parliament_period filter on /committee-memberships returns HTTP 500
+ * (confirmed AW API bug), so we fetch all pages and filter locally by mandate ID.
  */
-async function fetchCommitteeMemberships(periodId: number): Promise<Map<number, string[]>> {
+async function fetchCommitteeMemberships(mandateIds: Set<number>): Promise<Map<number, string[]>> {
   const out = new Map<number, string[]>();
   let page = 0;
   let total = Infinity;
   let fetched = 0;
 
   while (fetched < total) {
-    const url = `${AW_API}/committee-memberships?parliament_period=${periodId}&pager_limit=1000&page=${page}`;
+    const url = `${AW_API}/committee-memberships?pager_limit=1000&page=${page}`;
     let res: AwCommitteeMembershipList;
     try {
       res = await fetchJSON<AwCommitteeMembershipList>(url);
@@ -428,11 +438,11 @@ async function fetchCommitteeMemberships(periodId: number): Promise<Map<number, 
     if (res.data.length === 0) break;
 
     for (const m of res.data) {
-      const pid = m.politician?.id;
+      const mandateId = m.candidacy_mandate?.id;
       const label = m.committee?.label;
-      if (!pid || !label) continue;
-      if (!out.has(pid)) out.set(pid, []);
-      out.get(pid)!.push(label);
+      if (!mandateId || !label || !mandateIds.has(mandateId)) continue;
+      if (!out.has(mandateId)) out.set(mandateId, []);
+      out.get(mandateId)!.push(label);
     }
 
     fetched += res.data.length;
