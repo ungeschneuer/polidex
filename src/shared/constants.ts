@@ -205,10 +205,10 @@ export const ACHIEVEMENT_MAP = new Map(ACHIEVEMENTS.map(a => [a.id, a]));
 
 // ─── Server ───────────────────────────────────────────────────────────────────
 
-declare const __POLIDEX_SERVER_URL__: string;
+declare const __POLIDEX_SERVER_URL__: string | undefined;
 
-/** Base URL of the Polidex data server. Overridable at build time via webpack DefinePlugin. */
-export const POLIDEX_SERVER_URL: string = __POLIDEX_SERVER_URL__;
+/** Base URL of the Polidex data server. Injected at build time via webpack DefinePlugin. */
+export const POLIDEX_SERVER_URL: string = typeof __POLIDEX_SERVER_URL__ !== 'undefined' ? __POLIDEX_SERVER_URL__ : '';
 
 export const POLITICIANS_SYNC_INTERVAL_MS   = 24 * 60 * 60 * 1000; // 24 hours base interval
 /** Sync is skipped (unless forced) when data is fresher than this. */
