@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "Polidex",
+  "name": "Politi-Sammelalbum",
   "version": "0.9.1",
   "description": "Sammle Politiker*innen in Nachrichtenartikeln",
   "permissions": [
@@ -9,7 +9,7 @@
     "tabs"
   ],
   "host_permissions": [
-    "https://ungeschneuer.github.io/*"
+    "https://ungeschneuer.github.io/politi-album/*"
   ],
   "background": {
     "scripts": [
@@ -19,7 +19,7 @@
   },
   "browser_specific_settings": {
     "gecko": {
-      "id": "polidex@ungeschneuer.de",
+      "id": "politi-album@ungeschneuer.de",
       "strict_min_version": "140.0",
       "data_collection_permissions": {
         "required": ["none"],

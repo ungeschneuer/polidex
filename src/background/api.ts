@@ -1,5 +1,5 @@
 /**
- * Extension API — fetches the pre-built politician list from the Polidex server.
+ * Extension API — fetches the pre-built politician list from the Politi-Sammelalbum server.
  *
  * Supports conditional GET with ETag to avoid re-downloading unchanged data.
  * Returns null when server responds 304 Not Modified.
@@ -27,7 +27,7 @@ export async function loadBundledPoliticians(): Promise<PoliticianData[] | null>
 }
 
 /**
- * Downloads the current politician list from the Polidex server.
+ * Downloads the current politician list from the Politi-Sammelalbum server.
  * Sends If-None-Match if we have a stored ETag; returns null on 304.
  * Returns [politicians, newETag] on success, or [null, null] on 304.
  * Throws if the server is unreachable or returns an unexpected error.

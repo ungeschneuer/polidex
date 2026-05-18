@@ -3,122 +3,139 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Willkommen bei Polidex</title>
+  <title>Willkommen bei Politi-Sammelalbum</title>
   <link rel="stylesheet" href="welcome.css">
 </head>
 <body>
 
+  <!-- Skip link for keyboard users -->
+  <a class="skip-link" href="#main">Direkt zum Inhalt springen</a>
+
   <div class="page">
 
-    <!-- Header -->
-    <header class="hero">
+    <!-- ── Header ───────────────────────────────────────────────────── -->
+    <header class="hero" role="banner">
       <div class="hero-inner">
-        <div class="logo">POLIDEX</div>
-        <p class="tagline">Willkommen! Alles bereit.</p>
-        <p class="sub">Hier ist alles, was du zum Start wissen musst.</p>
+        <div class="hero-eyebrow">
+          <span class="stamp">SOEBEN INSTALLIERT</span>
+          <span class="hero-edition" aria-label="Ausgabe Nummer sieben, Zweitausend­sechs­und­zwanzig">AUSGABE NR. 7 · 2026</span>
+        </div>
+        <h1 class="hero-headline">
+          <span class="hero-headline-mark" aria-hidden="true">
+            <span>PS!</span>
+          </span>
+          <span class="hero-headline-text">
+            <span class="hero-headline-line">POLITI-</span>
+            <span class="hero-headline-line">SAMMELALBUM</span>
+          </span>
+        </h1>
+        <p class="hero-tagline">Willkommen!<br>Album&nbsp;ist bereit, Klebstoff aufgewärmt.</p>
+        <p class="hero-sub">Hier siehst du, wie das Ganze funktioniert — und wie du das Plugin in zwei Klicks an die Symbolleiste pinnst.</p>
       </div>
     </header>
 
-    <main class="content">
+    <main class="content" id="main" tabindex="-1">
 
-      <!-- How it works -->
-      <section class="section">
-        <p class="section-label">Anleitung</p>
-        <h2 class="section-title">So funktioniert&rsquo;s</h2>
-        <div class="steps">
+      <!-- ── So funktioniert's ──────────────────────────────────────── -->
+      <section class="section" aria-labelledby="how-title">
+        <p class="section-eyebrow">Anleitung</p>
+        <h2 class="section-title" id="how-title">SO GEHT&rsquo;S.</h2>
 
-          <div class="step">
-            <div class="step-num">01</div>
-            <div class="step-body">
-              <div class="step-tag">// ARTIKEL &Ouml;FFNEN</div>
-              <h3 class="step-title">Artikel &ouml;ffnen</h3>
-              <p class="step-desc">&Ouml;ffne einen Nachrichtenartikel auf einer beliebigen Nachrichtenseite &mdash; zum Beispiel tagesschau.de, spiegel.de oder zeit.de.</p>
-            </div>
-          </div>
-
-          <div class="step">
-            <div class="step-num">02</div>
-            <div class="step-body">
-              <div class="step-tag">// SEITE SCANNEN</div>
-              <h3 class="step-title">Seite scannen</h3>
-              <p class="step-desc">Klicke oben rechts im Browser auf das Polidex-Symbol, um das Popup zu &ouml;ffnen. Dann auf <strong>SEITE SCANNEN</strong>.</p>
-            </div>
-          </div>
-
-          <div class="step">
-            <div class="step-num">03</div>
-            <div class="step-body">
-              <div class="step-tag">// SAMMELN</div>
-              <h3 class="step-title">Sammeln</h3>
-              <p class="step-desc">Erkannte Bundestagsabgeordnete*n erscheinen in der Ergebnisliste. Mit einem Klick auf <strong>SAMMELN!</strong> landen sie in deiner Sammlung.</p>
-            </div>
-          </div>
-
-          <div class="step">
-            <div class="step-num">04</div>
-            <div class="step-body">
-              <div class="step-tag">// AUFLEVELN</div>
-              <h3 class="step-title">Aufleveln</h3>
-              <p class="step-desc">Scanne mehr Artikel, um gesammelten Politiker*innen XP zu geben. Je mehr Artikel, desto h&ouml;her das Level. Artikel mit Schlagzeile geben Bonus-XP.</p>
-            </div>
-          </div>
-
-        </div>
+        <ol class="steps-grid">
+          <li class="step-card step-card-1">
+            <span class="step-num" aria-hidden="true">01</span>
+            <h3 class="step-title">Artikel öffnen</h3>
+            <p class="step-desc">Jede Nachrichtenseite tut&rsquo;s — spiegel.de, tagesschau.de, taz.de, dein Lokalblatt.</p>
+          </li>
+          <li class="step-card step-card-2">
+            <span class="step-num" aria-hidden="true">02</span>
+            <h3 class="step-title">Plugin klicken</h3>
+            <p class="step-desc">Oben rechts im Browser auf das gelbe Icon klicken. Dann auf den roten Knopf <strong>„Jetzt scannen!"</strong>.</p>
+          </li>
+          <li class="step-card step-card-3">
+            <span class="step-num" aria-hidden="true">03</span>
+            <h3 class="step-title">Druff!</h3>
+            <p class="step-desc">Für jede erkannte Person ein Sticker. Klick auf <strong>„+ Druff!"</strong> klebt ihn ins Album.</p>
+          </li>
+          <li class="step-card step-card-4">
+            <span class="step-num" aria-hidden="true">04</span>
+            <h3 class="step-title">Sammeln &amp; leveln</h3>
+            <p class="step-desc">Jede weitere Erwähnung gibt XP. Achievements freischalten, Serie aufbauen, alle <strong>1.865</strong> jagen.</p>
+          </li>
+        </ol>
       </section>
 
-      <!-- Pin instructions -->
-      <section class="section">
-        <p class="section-label">Empfohlen</p>
-        <h2 class="section-title">Polidex anpinnen</h2>
-        <p class="intro-text">Standardm&auml;&szlig;ig ist Polidex im Erweiterungs-Men&uuml; versteckt. Pinne es an die Symbolleiste, damit du mit einem Klick scannen kannst.</p>
+      <!-- ── Anpinnen ───────────────────────────────────────────────── -->
+      <section class="section section-paper" aria-labelledby="pin-title">
+        <p class="section-eyebrow">Empfohlen</p>
+        <h2 class="section-title" id="pin-title">AN DIE LEISTE PINNEN.</h2>
+        <p class="section-deck">Damit du das Plugin mit einem Klick erreichst — sonst versteckt es sich im Erweiterungs-Menü.</p>
 
         <div class="pin-grid">
-
-          <div class="pin-card">
-            <div class="pin-card-header">
+          <article class="pin-card pin-card-chrome">
+            <header class="pin-card-header">
               <span class="pin-badge chrome">CHROME</span>
-              <span class="pin-badge-also">Edge &middot; Brave &middot; Arc</span>
-            </div>
+              <span class="pin-card-also">Edge · Brave · Arc · Vivaldi</span>
+            </header>
             <ol class="pin-steps">
-              <li>Klicke auf das Puzzle-St&uuml;ck-Symbol rechts neben der Adressleiste.</li>
-              <li>Suche <strong>Polidex</strong> in der Liste.</li>
-              <li>Klicke auf das Pin-Symbol neben Polidex.</li>
+              <li>Klick auf das <strong>Puzzle-Symbol</strong> rechts neben der Adressleiste.</li>
+              <li>Suche <strong>Politi-Sammelalbum</strong> in der Liste.</li>
+              <li>Klick auf das <strong>Pin-Symbol</strong> daneben.</li>
             </ol>
-            <div class="pin-result">Polidex erscheint jetzt dauerhaft in der Symbolleiste.</div>
-          </div>
+            <p class="pin-card-result">✓ Erscheint jetzt dauerhaft in der Symbolleiste.</p>
+          </article>
 
-          <div class="pin-card">
-            <div class="pin-card-header">
+          <article class="pin-card pin-card-firefox">
+            <header class="pin-card-header">
               <span class="pin-badge firefox">FIREFOX</span>
-            </div>
+              <span class="pin-card-also">ab Version 128</span>
+            </header>
             <ol class="pin-steps">
-              <li>Klicke auf das Erweiterungs-Symbol rechts neben der Adressleiste.</li>
-              <li>Suche <strong>Polidex</strong> in der Liste.</li>
-              <li>Klicke auf das Zahnrad-Symbol und w&auml;hle <strong>An Symbolleiste anpinnen</strong>.</li>
+              <li>Klick auf das <strong>Erweiterungs-Symbol</strong> rechts neben der Adressleiste.</li>
+              <li>Suche <strong>Politi-Sammelalbum</strong> in der Liste.</li>
+              <li>Klick auf das <strong>Zahnrad</strong> und wähle „An Symbolleiste anpinnen".</li>
             </ol>
-            <div class="pin-result">Polidex erscheint jetzt dauerhaft in der Symbolleiste.</div>
-          </div>
-
+            <p class="pin-card-result">✓ Erscheint jetzt dauerhaft in der Symbolleiste.</p>
+          </article>
         </div>
       </section>
 
-      <!-- Tips -->
-      <section class="section">
-        <p class="section-label">Hinweise</p>
-        <h2 class="section-title">Gut zu wissen</h2>
+      <!-- ── Gut zu wissen ──────────────────────────────────────────── -->
+      <section class="section section-dark" aria-labelledby="tips-title">
+        <p class="section-eyebrow">Hinweise</p>
+        <h2 class="section-title" id="tips-title">GUT ZU WISSEN.</h2>
+
         <ul class="tips-list">
-          <li><span class="tip-check">&#x2713;</span><span>Alle Daten bleiben <strong>ausschlie&szlig;lich lokal</strong> in deinem Browser &mdash; kein Server, kein Account.</span></li>
-          <li><span class="tip-check">&#x2713;</span><span>Es gibt einige <strong>Achievements</strong>, die du bei besonderen Kombis oder Serien erhälst.</span></li>
-          <li><span class="tip-check">&#x2713;</span><span>Deine Sammlung l&auml;sst sich unter <strong>Sammlung &rarr; Exportieren</strong> als JSON sichern und sp&auml;ter importieren.</span></li>
-          <li><span class="tip-check">&#x2713;</span><span>Partei- und Regierungswebsites können nicht gescannt werden (z.&nbsp;B. bundestag.de, spd.de).</span></li>
+          <li>
+            <span class="tip-check" aria-hidden="true">✓</span>
+            <span><strong>Alles bleibt lokal.</strong> Kein Server, kein Konto, kein Tracking. Dein Album lebt nur in deinem Browser.</span>
+          </li>
+          <li>
+            <span class="tip-check" aria-hidden="true">✓</span>
+            <span><strong>24 Achievements</strong> warten — von „Erstabdruck" über „Plenarsaal-Mobiliar" bis „Maximum Talkshow".</span>
+          </li>
+          <li>
+            <span class="tip-check" aria-hidden="true">✓</span>
+            <span><strong>Export &amp; Import</strong> als JSON unter <em>Sammlung → Export</em>. Backup oder Geräte­wechsel: kein Problem.</span>
+          </li>
+          <li>
+            <span class="tip-check" aria-hidden="true">✓</span>
+            <span><strong>Partei- und Regierungs-Seiten</strong> werden nicht gescannt (z.&nbsp;B. spd.de, bundestag.de) — die zählen nicht als Nachrichten.</span>
+          </li>
+          <li>
+            <span class="tip-check" aria-hidden="true">✓</span>
+            <span><strong>Hilfe jederzeit:</strong> Im Popup oben rechts auf <kbd>?</kbd> für die Spielregeln. Oder <kbd>Esc</kbd> drücken, um Karten zu schließen.</span>
+          </li>
         </ul>
       </section>
 
     </main>
 
-    <footer class="footer">
-      <button id="btn-start" class="btn-start">&#x25B6;&nbsp; LOS GEHT&rsquo;S!</button>
-      <p class="footer-note">Diese Seite &ouml;ffnet sich nur einmal. &Uuml;ber den <strong>?</strong>-Button im Popup kannst du die Spielregeln jederzeit aufrufen.</p>
+    <footer class="footer" role="contentinfo">
+      <button id="btn-start" class="btn-start" type="button">
+        <span aria-hidden="true">▶</span>&nbsp; LOS GEHT&rsquo;S!
+      </button>
+      <p class="footer-note">Diese Seite öffnet sich nur einmal. Über das <strong>?</strong> im Popup kommst du jederzeit zurück zu den Spielregeln.</p>
     </footer>
 
   </div>
