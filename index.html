@@ -3,204 +3,419 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Polidex – Entdecke Bundestagsabgeordnete in Nachrichtenartikeln. Kostenlose Browser-Extension für Chrome und Firefox.">
-  <title>Polidex – Bundestagsabgeordnete sammeln</title>
+  <meta name="description" content="Politi-Sammelalbum — Browser-Erweiterung, die in Nachrichtenartikeln nach Bundestagsabgeordneten sucht. Sammle alle 1.865 wie in einem Panini-Heft. Kostenlos für Chrome &amp; Firefox.">
+  <title>Politi-Sammelalbum — Bundestagsabgeordnete sammeln wie Panini-Sticker</title>
   <link rel="stylesheet" href="style.css">
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%231a1a2e'/><text x='2' y='24' font-size='22' font-family='monospace' font-weight='900' fill='%23ed4560'>P</text></svg>">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23ffe14a'/%3E%3Crect x='2' y='2' width='28' height='28' fill='none' stroke='%230e0e0e' stroke-width='2.5'/%3E%3Ctext x='16' y='24' font-family='Anton, Impact, sans-serif' font-size='22' font-weight='900' fill='%230e0e0e' text-anchor='middle'%3EPS!%3C/text%3E%3C/svg%3E">
 </head>
 <body>
 
-  <!-- ── Nav ── -->
+  <!-- ── Nav (kiosk masthead) ─────────────────────────────────────────── -->
   <nav class="nav" role="navigation">
     <div class="nav-inner">
-      <a href="#" class="nav-logo">POLIDEX</a>
+      <a href="#top" class="nav-logo">
+        <span class="nav-logo-mark" aria-hidden="true">
+          <span class="nav-logo-mark-inner">PS!</span>
+        </span>
+        <span class="nav-logo-text">Politi-Sammelalbum</span>
+      </a>
       <ul class="nav-links">
-        <li class="nav-link-hide"><a href="#wie-funktioniert">So geht&rsquo;s</a></li>
-        <li class="nav-link-hide"><a href="#datenschutz">Datenschutz</a></li>
-        <li><a href="#herunterladen" class="nav-cta">DOWNLOAD</a></li>
+        <li><a href="#wie-funktioniert">So geht&rsquo;s</a></li>
+        <li><a href="#album">Album</a></li>
+        <li><a href="#datenschutz">Datenschutz</a></li>
+        <li><a href="#herunterladen" class="nav-cta">+ INSTALLIEREN!</a></li>
       </ul>
     </div>
   </nav>
 
-  <!-- ── Hero ── -->
-  <section class="hero">
-    <div class="container">
-      <h1 class="hero-logo">POLIDEX<span class="cursor" aria-hidden="true"></span></h1>
-      <p class="hero-tagline">Sammle alle Bundestagsabgeordnete in der Wildnis (Nachrichtenartikel).</p>
-      <p class="hero-sub">Browser-Extension ohne seltsames Datensammeln. Versprochen!</p>
-      <div class="hero-actions">
-        <a href="#herunterladen" class="btn btn-primary btn-lg">&#x25B6; CHROME HERUNTERLADEN</a>
-        <a href="https://addons.mozilla.org/de/firefox/addon/polidex/" class="btn btn-primary btn-lg">FIREFOX HERUNTERLADEN</a>
+  <!-- ── Hero ────────────────────────────────────────────────────────── -->
+  <section class="hero" id="top">
+    <div class="hero-grid container">
+      <div class="hero-text">
+        <div class="hero-eyebrow">
+          <span class="stamp stamp-red">SOEBEN GESICHTET</span>
+          <span class="hero-edition">AUSGABE 2026 · NR. 7</span>
+        </div>
+        <h1 class="hero-headline">
+          Dein Bundestag.<span class="break"></span>
+          <em class="hero-headline-tilt">Als Sticker.</em><span class="break"></span>
+          <u>Vollständig.</u>
+        </h1>
+        <p class="hero-deck">
+          Die Browser-Erweiterung fürs politische Lesen: <strong>Jede Erwähnung in Nachrichtenartikeln einfach&hellip; sammeln.</strong>
+        </p>
+        <div class="hero-actions">
+          <a href="#herunterladen" class="btn btn-primary btn-lg">▶ FÜR CHROME · GRATIS!</a>
+          <a href="https://addons.mozilla.org/de/firefox/addon/polidex/" class="btn btn-secondary btn-lg">FÜR FIREFOX</a>
+        </div>
+        <ul class="hero-features">
+          <li>★ 1.865 Sticker</li>
+          <li>★ WP 16–21 (seit 2005)</li>
+          <li>★ Lokal · kein Backend</li>
+          <li>★ Open Source</li>
+        </ul>
+      </div>
+
+      <div class="hero-visual" aria-hidden="true">
+        <!-- Newspaper scrap behind -->
+        <div class="hero-newspaper">
+          <div class="hero-newspaper-eyebrow">BERLIN · SEITE 3</div>
+          <div class="hero-newspaper-headline">WIEDER VOLL DRIN!</div>
+          <div class="hero-newspaper-lines">
+            <span style="width:88%"></span>
+            <span style="width:78%"></span>
+            <span style="width:82%"></span>
+            <span style="width:64%"></span>
+          </div>
+          <div class="hero-sticker-grid">
+            <div class="sticker tilt-2" style="--p:var(--c-spd)">
+              <div class="sticker-portrait">👤</div>
+              <div class="sticker-num">№ 042</div>
+              <div class="sticker-band"><b>SCHOLZ</b><span>Olaf · SPD</span></div>
+              <span class="sticker-flag"></span>
+            </div>
+            <div class="sticker tilt-1" style="--p:var(--c-cdu)">
+              <div class="sticker-portrait">👤</div>
+              <div class="sticker-num">№ 001</div>
+              <div class="stamp stamp-red sticker-stamp">LEGENDÄR</div>
+              <div class="sticker-band"><b>MERZ</b><span>Friedrich · CDU</span></div>
+              <span class="sticker-flag"></span>
+            </div>
+            <div class="sticker tilt2" style="--p:var(--c-gruene)">
+              <div class="sticker-portrait">👤</div>
+              <div class="sticker-num">№ 116</div>
+              <div class="sticker-band"><b>BAERBOCK</b><span>Annalena · GRÜNE</span></div>
+              <span class="sticker-flag"></span>
+            </div>
+            <div class="sticker-slot">?<span>№ 073</span></div>
+            <div class="sticker tilt-3" style="--p:var(--c-spd)">
+              <div class="sticker-portrait">👤</div>
+              <div class="sticker-num">№ 098</div>
+              <div class="sticker-band"><b>LAUTERBACH</b><span>Karl · SPD</span></div>
+              <span class="sticker-flag"></span>
+            </div>
+            <div class="sticker tilt1" style="--p:var(--c-cdu)">
+              <div class="sticker-portrait">👤</div>
+              <div class="sticker-num">№ 301</div>
+              <div class="sticker-band"><b>SPAHN</b><span>Jens · CDU</span></div>
+              <span class="sticker-flag"></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Hero peeling sticker on top -->
+        <div class="hero-floating-sticker">
+          <div class="sticker sticker-lg" style="--p:var(--c-cdu)">
+            <div class="sticker-portrait">👤</div>
+            <div class="sticker-num">№ 001</div>
+            <div class="sticker-band"><b>MERZ</b><span>Friedrich · CDU</span></div>
+            <div class="stamp stamp-red sticker-stamp">LEGENDÄR!</div>
+            <span class="sticker-flag"></span>
+          </div>
+        </div>
+
+        <span class="stamp stamp-red hero-stamp">EXKLUSIV!</span>
       </div>
     </div>
   </section>
 
-  <!-- ── Was ist Polidex ── -->
-  <section>
+  <!-- ── Was ist das? ─────────────────────────────────────────────────── -->
+  <section class="intro-section">
     <div class="container">
-      <p class="section-label">Einleitung</p>
-      <h2 class="section-title">Was ist Polidex?</h2>
+      <p class="section-eyebrow">Was ist das?</p>
+      <h2 class="section-headline">PANINI-ALBUM FÜR DAS PARLAMENT.</h2>
+
       <div class="intro-grid">
-        <div>
-          <p class="intro-text">
-            <strong>Polidex</strong> ist eine Browser-Extension f&uuml;r Chrome und Firefox.
-            &Ouml;ffne einen Nachrichtenartikel, klicke auf &bdquo;Seite scannen&ldquo;, und
-            Polidex erkennt automatisch, welche Bundestagsabgeordneten im Text erw&auml;hnt werden.
-            Sammle sie alle, von den Dauerbrennern bis zu den ganz seltenen Hinterbänkler*innen!
-          </p>
-          <p class="intro-text" style="margin-top: 16px;">
-            Alle Daten bleiben <strong>ausschlie&szlig;lich lokal</strong> in deinem Browser &mdash;
-            kein Backend, kein Konto, kein Upload zu Drittservern.
-            Die Politiker*innendaten werden t&auml;glich von
-            <strong>abgeordnetenwatch.de</strong> und <strong>Wikipedia</strong> synchronisiert.
-          </p>
-          <div class="intro-highlight">
-            Ziel: Alle <strong>1.865 Abgeordnete*n</strong> der Wahlperioden&nbsp;16&ndash;21 (2005&ndash;heute) sammeln &mdash; vom aktuellen 21.&thinsp;Bundestag (630&nbsp;Abgeordnete) bis zur&uuml;ck zum 16.&thinsp;Bundestag (2005&ndash;09).
-          </div>
+        <div class="intro-prose">
+          <p>Du öffnest einen Nachrichtenartikel. Du klickst <strong>„Jetzt scannen!"</strong>. Das Plugin durchsucht den Text nach Bundestagsabgeordneten, präsentiert Treffer als <strong>glänzende Sammelsticker</strong> — und du klebst sie mit einem Klick ins Album.</p>
+          <p>Jede*r Politiker*in lässt sich nur <em>einmal</em> sammeln. Wer schon im Album klebt, bekommt bei jeder weiteren Erwähnung XP. Level steigt mit&nbsp;√XP. Tagesserien geben Bonus.</p>
+          <p class="kicker">Das Ziel: Alle <strong>1.865</strong> Bundestagsabgeordnete*n der Wahlperioden&nbsp;16–21 ins Heft.</p>
         </div>
-        <div class="intro-visual" aria-hidden="true">
-          <div class="mock-header">
-            <span class="mock-logo">POLIDEX</span>
-            <span class="mock-tab active">Scan</span>
-            <span class="mock-tab">Sammlung</span>
-          </div>
-          <button class="mock-btn" tabindex="-1">&#x25B6; SEITE SCANNEN</button>
-          <div style="font-size:11px; color: var(--text-muted); margin-bottom: 8px; letter-spacing: 1px;">3 Politiker*innen GEFUNDEN</div>
-          <div class="mock-result">
-            <div class="mock-avatar">&#x1F464;</div>
-            <div class="mock-info">
-              <div class="mock-name">Friedrich Merz</div>
-              <div class="mock-meta">CDU/CSU &bull; Economy</div>
+
+        <div class="intro-mock">
+          <div class="popup-frame">
+            <div class="popup-frame-bar">
+              <span class="popup-frame-dot"></span>
+              <span class="popup-frame-dot"></span>
+              <span class="popup-frame-dot"></span>
+              <span class="popup-frame-url">spiegel.de/politik/&hellip;</span>
+              <span class="popup-frame-icon" title="Politi-Sammelalbum">
+                <span class="popup-frame-icon-inner">PS!</span>
+                <span class="popup-frame-icon-badge">2</span>
+              </span>
             </div>
-            <div class="mock-catch">SAMMELN!</div>
-          </div>
-          <div class="mock-result">
-            <div class="mock-avatar">&#x1F464;</div>
-            <div class="mock-info">
-              <div class="mock-name">Annalena Baerbock</div>
-              <div class="mock-meta">GR&Uuml;NE &bull; Diplomat</div>
+            <div class="popup-frame-shadow">
+              <div class="mock-popup">
+                <div class="mock-popup-mast">
+                  <div class="mock-popup-logo">POLITI-<br>SAMMELALBUM</div>
+                  <div class="mock-popup-stamp">NR.7<br>2026</div>
+                </div>
+                <div class="mock-popup-tabs">
+                  <span class="mock-popup-tab active">Scannen</span>
+                  <span class="mock-popup-tab">Sammlung</span>
+                </div>
+                <div class="mock-popup-body">
+                  <button class="mock-popup-btn">▶ JETZT SCANNEN!</button>
+                  <div class="mock-popup-eyebrow">BREAKING:</div>
+                  <div class="mock-popup-count">3 ENTDECKT!</div>
+
+                  <div class="mock-result">
+                    <div class="mock-result-sticker" style="--p:var(--c-cdu)"><span>👤</span></div>
+                    <div class="mock-result-info">
+                      <div class="mock-result-name">MERZ</div>
+                      <div class="mock-result-meta"><span class="mock-chip" style="--p:var(--c-cdu)">CDU</span> Bundeskanzler</div>
+                    </div>
+                    <span class="mock-catch">+ DRUFF!</span>
+                  </div>
+                  <div class="mock-result">
+                    <div class="mock-result-sticker" style="--p:var(--c-gruene)"><span>👤</span></div>
+                    <div class="mock-result-info">
+                      <div class="mock-result-name">BAERBOCK</div>
+                      <div class="mock-result-meta"><span class="mock-chip" style="--p:var(--c-gruene)">GRÜNE</span> UN-Versammlung</div>
+                    </div>
+                    <span class="mock-catch">+ DRUFF!</span>
+                  </div>
+                  <div class="mock-result mock-result-caught">
+                    <div class="mock-result-sticker" style="--p:var(--c-spd)"><span>👤</span></div>
+                    <div class="mock-result-info">
+                      <div class="mock-result-name">SCHOLZ</div>
+                      <div class="mock-result-meta"><span class="mock-chip" style="--p:var(--c-spd)">SPD</span> Kanzler a. D.</div>
+                    </div>
+                    <span class="stamp stamp-red mock-stamp">HAB&apos; ICH!</span>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div class="mock-catch">SAMMELN!</div>
-          </div>
-          <div class="mock-result">
-            <div class="mock-avatar">&#x1F464;</div>
-            <div class="mock-info">
-              <div class="mock-name">Olaf Scholz</div>
-              <div class="mock-meta">SPD &bull; Budget</div>
-            </div>
-            <div class="mock-catch">SAMMELN!</div>
           </div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- ── So funktioniert's ── -->
-  <section id="wie-funktioniert">
+  <!-- ── So funktioniert's ────────────────────────────────────────────── -->
+  <section id="wie-funktioniert" class="steps-section">
     <div class="container">
-      <p class="section-label">Anleitung</p>
-      <h2 class="section-title">So funktioniert&rsquo;s</h2>
-      <div class="steps-grid">
-        <div class="step-card">
-          <div class="step-num">01</div>
-          <span class="step-slash">// ARTIKEL &Ouml;FFNEN</span>
-          <h3 class="step-title">Artikel &ouml;ffnen</h3>
-          <p class="step-desc">&Ouml;ffne einen Nachrichtenartikel auf einer beliebigen Nachrichtenseite.</p>
-          <div class="step-connector" aria-hidden="true"></div>
+      <p class="section-eyebrow">Anleitung</p>
+      <h2 class="section-headline">SO GEHT&rsquo;S.</h2>
+
+      <ol class="steps-grid">
+        <li class="step-card step-card-1">
+          <span class="step-num">01</span>
+          <h3 class="step-title">Artikel öffnen</h3>
+          <p>Egal welche Nachrichtenseite — spiegel.de, tagesschau.de, taz.de, lokales Blatt.</p>
+        </li>
+        <li class="step-card step-card-2">
+          <span class="step-num">02</span>
+          <h3 class="step-title">Plugin klicken</h3>
+          <p>Roter Knopf: <strong>„Jetzt scannen!"</strong>. Das Plugin liest den Artikel — nichts verlässt den Browser.</p>
+        </li>
+        <li class="step-card step-card-3">
+          <span class="step-num">03</span>
+          <h3 class="step-title">Druff!</h3>
+          <p>Pro Treffer ein Sticker. Klick auf <strong>„+ Druff!"</strong> und schon klebt&rsquo;s im Album.</p>
+        </li>
+        <li class="step-card step-card-4">
+          <span class="step-num">04</span>
+          <h3 class="step-title">Sammeln &amp; leveln</h3>
+          <p>Jede weitere Erwähnung gibt XP. Achievements freischalten, Serie aufbauen, alle <strong>1.865</strong> sammeln.</p>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- ── Album-Vorschau ───────────────────────────────────────────────── -->
+  <section id="album" class="album-section">
+    <div class="container">
+      <div class="album-header">
+        <p class="section-eyebrow">Dein Album</p>
+        <h2 class="section-headline">DAS GANZE PARLAMENT.</h2>
+        <p class="album-deck">Sortier nach Partei, Level, Wahlperiode oder „wer fehlt noch?". Jede weitere Erwähnung gibt XP — Abgeordnete mit langer Parlamentserfahrung sind <em>Legendär</em>.</p>
+      </div>
+
+      <div class="album-grid">
+        <div class="album-page">
+          <div class="album-page-header">
+            <span>SEITE 4 · 21. BUNDESTAG</span>
+            <span>S–Z · 12/24</span>
+          </div>
+          <div class="album-page-grid">
+            <div class="sticker tilt-1" style="--p:var(--c-spd)">
+              <div class="sticker-portrait">👤</div>
+              <div class="sticker-num">№ 042</div>
+              <div class="sticker-band"><b>SCHOLZ</b><span>Olaf · SPD</span></div>
+              <span class="sticker-flag"></span>
+            </div>
+            <div class="sticker tilt1" style="--p:var(--c-cdu)">
+              <div class="sticker-portrait">👤</div>
+              <div class="sticker-num">№ 001</div>
+              <div class="stamp stamp-red sticker-stamp" style="font-size:9px;padding:1px 4px">LGD</div>
+              <div class="sticker-band"><b>MERZ</b><span>Friedrich · CDU</span></div>
+              <span class="sticker-flag"></span>
+            </div>
+            <div class="sticker tilt-2" style="--p:var(--c-gruene)">
+              <div class="sticker-portrait">👤</div>
+              <div class="sticker-num">№ 116</div>
+              <div class="sticker-band"><b>BAERBOCK</b><span>Annalena · GRÜNE</span></div>
+              <span class="sticker-flag"></span>
+            </div>
+            <div class="sticker-slot">?<span>№ 073</span></div>
+            <div class="sticker tilt2" style="--p:var(--c-spd)">
+              <div class="sticker-portrait">👤</div>
+              <div class="sticker-num">№ 098</div>
+              <div class="sticker-band"><b>LAUTERBACH</b><span>Karl · SPD</span></div>
+              <span class="sticker-flag"></span>
+            </div>
+            <div class="sticker tilt-1" style="--p:var(--c-cdu)">
+              <div class="sticker-portrait">👤</div>
+              <div class="sticker-num">№ 301</div>
+              <div class="sticker-band"><b>SPAHN</b><span>Jens · CDU</span></div>
+              <span class="sticker-flag"></span>
+            </div>
+            <div class="sticker tilt1" style="--p:var(--c-gruene)">
+              <div class="sticker-portrait">👤</div>
+              <div class="sticker-num">№ 129</div>
+              <div class="sticker-band"><b>HABECK</b><span>Robert · GRÜNE</span></div>
+              <span class="sticker-flag"></span>
+            </div>
+            <div class="sticker-slot">?<span>№ 208</span></div>
+            <div class="sticker-slot">?<span>№ 155</span></div>
+          </div>
         </div>
-        <div class="step-card">
-          <div class="step-num">02</div>
-          <span class="step-slash">// SEITE SCANNEN</span>
-          <h3 class="step-title">Seite scannen</h3>
-          <p class="step-desc">Klicke auf &bdquo;Seite scannen&ldquo; im Polidex-Popup oben rechts im Browser.</p>
-          <div class="step-connector" aria-hidden="true"></div>
-        </div>
-        <div class="step-card">
-          <div class="step-num">03</div>
-          <span class="step-slash">// SAMMELN</span>
-          <h3 class="step-title">Sammeln</h3>
-          <p class="step-desc">Erkannte Politiker*innen mit einem Klick zur pers&ouml;nlichen Kollektion hinzuf&uuml;gen.</p>
-          <div class="step-connector" aria-hidden="true"></div>
-        </div>
-        <div class="step-card">
-          <div class="step-num">04</div>
-          <span class="step-slash">// AUFLEVELN</span>
-          <h3 class="step-title">Aufleveln</h3>
-          <p class="step-desc">Scanne weitere Artikel, um XP zu sammeln, Level zu steigen und Errungenschaften freizuschalten.</p>
+
+        <div class="album-sidebar">
+          <div class="stat-card">
+            <p class="stat-card-eyebrow">DEINE BILANZ</p>
+            <p class="stat-card-big">126<span>/ 1.865</span></p>
+            <div class="stat-card-bar"><span style="width:6.7%"></span></div>
+            <p class="stat-card-foot">6,7% komplett · Noch Luft nach oben.</p>
+          </div>
+          <div class="stat-card stat-card-yellow">
+            <p class="stat-card-eyebrow">RAR &amp; LEGENDÄR</p>
+            <p class="stat-card-mid">14 Legendäre · 38 Rare</p>
+            <p class="stat-card-sub">Wer mehr Wahlperioden absolviert hat, gilt als Legende. Wer seltener in Nachrichten erscheint, ist eine besondere Entdeckung.</p>
+          </div>
+          <div class="stat-card stat-card-dark">
+            <p class="stat-card-eyebrow">ACHIEVEMENTS</p>
+            <p class="stat-card-mid">12 / 28</p>
+            <p class="stat-card-sub">„Kenner*in", „Parlamentarische Legende", „Von Schröder bis Merz"&hellip;</p>
+          </div>
         </div>
       </div>
     </div>
   </section>
 
-
-
-  <!-- ── Datenschutz ── -->
-  <section id="datenschutz">
+  <!-- ── Datenschutz ──────────────────────────────────────────────────── -->
+  <section id="datenschutz" class="privacy-section">
     <div class="container">
-      <p class="section-label">Privatsph&auml;re</p>
-      <h2 class="section-title">Datenschutz</h2>
+      <p class="section-eyebrow">Privatsphäre</p>
+      <h2 class="section-headline">KEINE&nbsp;DATEN.<br>KEIN&nbsp;BACKEND.<br>KEIN&nbsp;BLA.</h2>
+
       <ul class="privacy-list">
         <li>
-          <span class="privacy-check">&#x2713;</span>
-          <span>Alle Daten werden <strong>ausschlie&szlig;lich lokal</strong> in deinem Browser gespeichert &ndash; nichts verl&auml;sst dein Ger&auml;t.</span>
+          <span class="privacy-check">✓</span>
+          <div>
+            <strong>Alles bleibt lokal.</strong>
+            Dein Album lebt in <code>browser.storage.local</code>. Nichts verlässt deinen Browser.
+          </div>
         </li>
         <li>
-          <span class="privacy-check">&#x2713;</span>
-          <span>Kein Backend, kein Server, keine Anmeldung erforderlich.</span>
+          <span class="privacy-check">✓</span>
+          <div>
+            <strong>Kein Konto, kein Server.</strong>
+            Politikerdaten kommen direkt von <a href="https://www.abgeordnetenwatch.de/api" rel="noopener">abgeordnetenwatch.de</a> und <a href="https://www.wikidata.org/" rel="noopener">Wikidata</a> — beide öffentlich, kein Tracking.
+          </div>
         </li>
         <li>
-          <span class="privacy-check">&#x2713;</span>
-          <span>Open Source &mdash; der vollst&auml;ndige Quellcode ist auf <a href="https://github.com/ungeschneuer/polidex" data-todo="github-url">GitHub</a> einsehbar.</span>
+          <span class="privacy-check">✓</span>
+          <div>
+            <strong>Open Source.</strong>
+            Vollständiger Code auf <a href="https://github.com/ungeschneuer/politi-album" rel="noopener">GitHub</a>. MIT-Lizenz. Audit it yourself.
+          </div>
+        </li>
+        <li>
+          <span class="privacy-check">✓</span>
+          <div>
+            <strong>Nur, was gelesen wird.</strong>
+            Das Plugin liest Artikeltext nur, wenn du auf <em>„Jetzt scannen!"</em> klickst. Kein Hintergrundgescanne. Kein Profil.
+          </div>
         </li>
       </ul>
     </div>
   </section>
 
-  <!-- ── Download ── -->
-  <section id="herunterladen">
+  <!-- ── Download ─────────────────────────────────────────────────────── -->
+  <section id="herunterladen" class="download-section">
     <div class="container">
-      <p class="section-label">Installation</p>
-      <h2 class="section-title">Herunterladen</h2>
+      <p class="section-eyebrow">Installation</p>
+      <h2 class="section-headline">JETZT INSTALLIEREN.</h2>
+
       <div class="download-grid">
-        <div class="download-card" id="chrome-download">
-          <div class="download-card-icon" aria-hidden="true">&#x1F4BB;</div>
-          <div>
-            <div class="download-card-title">Google Chrome</div>
-            <p class="download-card-sub">Kompatibel mit Chrome, Edge, Brave und allen Chromium-basierten Browsern.</p>
+        <a href="#" data-todo="chrome-store-url" class="download-card download-card-chrome">
+          <span class="stamp stamp-red download-stamp">★ TOP!</span>
+          <div class="download-card-logo">
+            <svg viewBox="0 0 64 64" width="56" height="56" aria-hidden="true">
+              <circle cx="32" cy="32" r="30" fill="#fff" stroke="#0e0e0e" stroke-width="2.5"/>
+              <path d="M32 12 A20 20 0 0 1 49.3 22 L37.5 22 A8 8 0 0 0 25 24 L18.5 12.7 A20 20 0 0 1 32 12 Z" fill="#ea4335"/>
+              <path d="M49.3 22 A20 20 0 0 1 32 52 L25.5 40.5 A8 8 0 0 0 37.5 22 Z" fill="#fbbc05"/>
+              <path d="M18.5 12.7 L25 24 A8 8 0 0 0 25.5 40.5 L32 52 A20 20 0 0 1 18.5 12.7 Z" fill="#34a853"/>
+              <circle cx="32" cy="32" r="8" fill="#4285f4" stroke="#fff" stroke-width="1.5"/>
+            </svg>
           </div>
-          <a href="#" data-todo="chrome-store-url" class="btn btn-primary">IM CHROME WEB STORE &rarr;</a>
-        </div>
-        <div class="download-card" id="firefox-download">
-          <div class="download-card-icon" aria-hidden="true">&#x1F98A;</div>
-          <div>
-            <div class="download-card-title">Mozilla Firefox</div>
-            <p class="download-card-sub">F&uuml;r Firefox ab Version 128. Verf&uuml;gbar auf Firefox Add-ons (AMO).</p>
+          <div class="download-card-body">
+            <p class="download-card-eyebrow">FÜR</p>
+            <h3 class="download-card-title">GOOGLE CHROME</h3>
+            <p class="download-card-sub">Auch Edge, Brave, Arc, Vivaldi — alles auf Chromium-Basis.</p>
           </div>
-          <a href="https://addons.mozilla.org/de/firefox/addon/polidex/" data-todo="firefox-amo-url" class="btn btn-primary">AUF FIREFOX ADD-ONS &rarr;</a>
-        </div>
+          <span class="btn btn-primary download-card-btn">CHROME WEB STORE →</span>
+        </a>
+
+        <a href="https://addons.mozilla.org/de/firefox/addon/polidex/" data-todo="firefox-amo-url" class="download-card download-card-firefox">
+          <div class="download-card-logo">
+            <svg viewBox="0 0 64 64" width="56" height="56" aria-hidden="true">
+              <circle cx="32" cy="32" r="30" fill="#0e0e0e" stroke="#0e0e0e" stroke-width="2.5"/>
+              <path d="M32 8 C18 8 8 19 8 33 C8 47 18 56 32 56 C45 56 56 47 56 33 C56 22 49 14 41 11 C44 16 45 21 43 24 C40 21 36 19 32 19 C24 19 19 25 19 32 C19 39 24 45 32 45 C38 45 43 41 44 36 C44 38 43 40 41 41 C45 42 49 38 50 33 C51 39 47 47 39 50 C32 52 22 50 17 42 C13 36 13 27 17 21 C22 13 33 8 32 8 Z" fill="#ff6b35"/>
+            </svg>
+          </div>
+          <div class="download-card-body">
+            <p class="download-card-eyebrow">FÜR</p>
+            <h3 class="download-card-title">MOZILLA FIREFOX</h3>
+            <p class="download-card-sub">Ab Version 128. Auf addons.mozilla.org.</p>
+          </div>
+          <span class="btn btn-primary download-card-btn">FIREFOX ADD-ONS →</span>
+        </a>
       </div>
 
       <div class="pin-tip">
-        <span class="pin-tip-icon" aria-hidden="true">&#x1F4CC;</span>
+        <span class="pin-tip-icon" aria-hidden="true">📌</span>
         <div class="pin-tip-body">
-          <strong>Tipp: Polidex an die Symbolleiste anpinnen</strong>
+          <strong>Tipp: An die Symbolleiste anpinnen</strong>
           <ul class="pin-tip-list">
-            <li><strong>Chrome&nbsp;/&nbsp;Edge&nbsp;/&nbsp;Brave:</strong> Klicke auf das Puzzle-St&uuml;ck-Symbol oben rechts &rarr; Polidex &rarr; Pin-Symbol.</li>
-            <li><strong>Firefox:</strong> Klicke auf das Erweiterungen-Symbol &rarr; Polidex &rarr; &bdquo;An Symbolleiste anpinnen&ldquo;.</li>
+            <li><strong>Chrome / Edge / Brave:</strong> Puzzle-Symbol oben rechts → Politi-Sammelalbum → Pin.</li>
+            <li><strong>Firefox:</strong> Erweiterungen-Symbol → Politi-Sammelalbum → „An Symbolleiste anpinnen".</li>
           </ul>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- ── Footer ── -->
+  <!-- ── Footer ───────────────────────────────────────────────────────── -->
   <footer class="footer">
-    <div class="footer-inner">
-      <span class="footer-logo">POLIDEX</span>
-      <span class="footer-copy">Open Source &middot; MIT Lizenz &middot; &copy; 2025</span>
+    <div class="container footer-inner">
+      <div class="footer-mast">
+        <span class="nav-logo-mark" aria-hidden="true">
+          <span class="nav-logo-mark-inner">PS!</span>
+        </span>
+        <span class="footer-logo">POLITI-SAMMELALBUM</span>
+      </div>
+      <div class="footer-meta">
+        <span>Ausgabe 2026 · Nr. 7</span>
+        <span>Open Source · MIT</span>
+        <span>© 2025 ungeschneuer</span>
+      </div>
       <ul class="footer-links">
-        <li><a href="https://github.com/ungeschneuer/polidex" data-todo="github-url">GitHub</a></li>
+        <li><a href="https://github.com/ungeschneuer/politi-album">GitHub</a></li>
         <li><a href="#herunterladen">Download</a></li>
+        <li><a href="#datenschutz">Datenschutz</a></li>
       </ul>
     </div>
   </footer>
