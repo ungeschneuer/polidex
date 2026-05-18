@@ -283,13 +283,16 @@ interface AwMandateList {
  * For historical periods (activeOnly=false) all mandates are included.
  * Deduplicates by politician ID within the period.
  */
+const MANDATE_PAGE_LIMIT = 100;
+
 async function fetchMandates(periodId: number, activeOnly: boolean): Promise<AwMandate[]> {
   const out: AwMandate[] = [];
   let page = 0;
   let total = Infinity;
+  let fetched = 0;
 
-  while (out.length < total) {
-    const url = `${AW_API}/candidacies-mandates?parliament_period=${periodId}&type=mandate&page=${page}&pager_limit=100`;
+  while (fetched < total) {
+    const url = `${AW_API}/candidacies-mandates?parliament_period=${periodId}&type=mandate&page=${page}&pager_limit=${MANDATE_PAGE_LIMIT}`;
     const res = await fetchJSON<AwMandateList>(url);
     if (total === Infinity) total = res.meta.result.total;
     if (res.data.length === 0) break;
@@ -297,8 +300,10 @@ async function fetchMandates(periodId: number, activeOnly: boolean): Promise<AwM
       ? res.data.filter(m => m.end_date === null)
       : res.data;
     out.push(...batch);
+    fetched += res.data.length;
+    if (res.data.length < MANDATE_PAGE_LIMIT) break;
     page++;
-    if (out.length < total) await sleep(200);
+    if (fetched < total) await sleep(200);
   }
 
   // Deduplicate by politician ID (same person may have multiple mandate records).

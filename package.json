@@ -1,9 +1,9 @@
 {
-  "name": "polidex",
+  "name": "politi-album",
   "version": "0.9.1",
   "description": "Sammle Politiker*innen in Nachrichtenartikeln",
   "author": "Marcel Schneuer",
-  "homepage": "https://ungeschneuer.github.io/polidex",
+  "homepage": "https://ungeschneuer.github.io/politi-album",
   "scripts": {
     "build": "webpack --mode production --env browser=chrome && webpack --mode production --env browser=firefox",
     "build:chrome": "webpack --mode production --env browser=chrome",
@@ -12,8 +12,8 @@
     "dev:firefox": "webpack --mode development --watch --env browser=firefox",
     "type-check": "tsc --noEmit",
     "version": "node scripts/version-sync.js && git add manifest.chrome.json manifest.firefox.json",
-    "package:chrome": "cd dist/chrome && zip -r ../../releases/polidex-chrome.zip .",
-    "package:firefox": "cd dist/firefox && zip -r ../../releases/polidex-firefox.zip .",
+    "package:chrome": "cd dist/chrome && zip -r ../../releases/politi-album-chrome.zip .",
+    "package:firefox": "cd dist/firefox && zip -r ../../releases/politi-album-firefox.zip .",
     "package": "mkdir -p releases && npm run package:chrome && npm run package:firefox",
     "release": "npm run build && npm run package",
     "server": "tsx server/index.ts",
@@ -21,21 +21,25 @@
   },
   "devDependencies": {
     "@types/chrome": "^0.0.268",
-    "chrome-webstore-upload-cli": "^3.0.0",
-    "web-ext": "^8.0.0",
     "@types/node": "^22.0.0",
     "@types/node-cron": "^3.0.11",
     "@types/webextension-polyfill": "^0.12.5",
+    "chrome-webstore-upload-cli": "^3.0.0",
     "copy-webpack-plugin": "^13.0.0",
     "css-loader": "^7.0.0",
     "mini-css-extract-plugin": "^2.9.0",
     "ts-loader": "^9.5.0",
     "tsx": "^4.19.0",
     "typescript": "^5.5.0",
+    "web-ext": "^8.0.0",
     "webpack": "^5.93.0",
     "webpack-cli": "^5.1.0"
   },
   "dependencies": {
+    "@fontsource/anton": "^5.2.7",
+    "@fontsource/inter": "^5.2.8",
+    "@fontsource/reenie-beanie": "^5.2.8",
+    "@fontsource/special-elite": "^5.2.8",
     "node-cron": "^3.0.3",
     "webextension-polyfill": "^0.12.0"
   }

@@ -9,6 +9,7 @@
  */
 
 import browser from 'webextension-polyfill';
+import '../shared/fonts.js';
 import './popup.css';
 import type {
   ExtractContentResult,
@@ -39,6 +40,91 @@ import {
   FACTION_COLORS,
   ACHIEVEMENT_MAP,
 } from '../shared/constants.js';
+
+// ─── Image cache ──────────────────────────────────────────────────────────────
+
+const IMAGE_CACHE = 'politi-album-imgs';
+
+/**
+ * Returns a blob-URL for the given image, served from the local Cache API.
+ * On a cache miss, fetches the image, compresses it via canvas, stores the
+ * compressed version, and returns a blob-URL of that.
+ * Falls back to the original URL string on any error.
+ */
+async function getCachedImageSrc(url: string): Promise<string> {
+  try {
+    const cache = await caches.open(IMAGE_CACHE);
+    const hit = await cache.match(url + '#c');
+    if (hit) return URL.createObjectURL(await hit.blob());
+
+    const raw = await cache.match(url);
+    const res = raw ?? await fetch(url, { mode: 'cors', credentials: 'omit' });
+    if (!res.ok) return url;
+
+    const blob = await compressImageResponse(res.clone(), 160);
+    if (blob) {
+      await cache.put(url + '#c', new Response(blob, { headers: { 'Content-Type': 'image/webp' } }));
+      if (!raw) await cache.put(url, res);
+      return URL.createObjectURL(blob);
+    }
+  } catch { /* fall through */ }
+  return url;
+}
+
+function compressImageResponse(res: Response, size: number): Promise<Blob | null> {
+  return new Promise(resolve => {
+    res.blob().then(srcBlob => {
+      const srcUrl = URL.createObjectURL(srcBlob);
+      const img = new Image();
+      img.onload = () => {
+        URL.revokeObjectURL(srcUrl);
+        const canvas = document.createElement('canvas');
+        canvas.width = size;
+        canvas.height = size;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) { resolve(null); return; }
+        const s = Math.min(img.naturalWidth, img.naturalHeight);
+        const ox = (img.naturalWidth - s) / 2;
+        const oy = (img.naturalHeight - s) / 2;
+        ctx.drawImage(img, ox, oy, s, s, 0, 0, size, size);
+        canvas.toBlob(b => resolve(b), 'image/webp', 0.75);
+      };
+      img.onerror = () => { URL.revokeObjectURL(srcUrl); resolve(null); };
+      img.src = srcUrl;
+    }).catch(() => resolve(null));
+  });
+}
+
+/**
+ * Populates `container` with an initials placeholder immediately, then
+ * asynchronously replaces it with the actual (cache-served) image.
+ */
+function setAvatarImage(
+  container: HTMLElement,
+  url: string,
+  initial: string,
+  bgColor?: string,
+  fgColor?: string,
+): void {
+  container.textContent = initial;
+  if (bgColor) container.style.background = bgColor;
+  if (fgColor) container.style.color = fgColor;
+  getCachedImageSrc(url).then(src => {
+    const img = document.createElement('img');
+    img.alt = '';
+    img.onload = () => {
+      if (src.startsWith('blob:')) URL.revokeObjectURL(src);
+      container.textContent = '';
+      container.style.background = '';
+      container.style.color = '';
+      container.appendChild(img);
+    };
+    img.onerror = () => {
+      if (src.startsWith('blob:')) URL.revokeObjectURL(src);
+    };
+    img.src = src;
+  });
+}
 
 // ─── State ────────────────────────────────────────────────────────────────────
 
@@ -172,7 +258,7 @@ function renderStreak(streak: StreakData) {
   if (streak.current >= 2) {
     streakDisplay.classList.remove('hidden');
     streakCount.textContent = `${streak.current} Tage`;
-    streakDisplay.title = `Längste Serie: ${streak.longest} Tage`;
+    streakDisplay.title = `Längste Leseserie: ${streak.longest} Tage`;
   } else {
     streakDisplay.classList.add('hidden');
   }
@@ -239,7 +325,12 @@ async function handleScan() {
   } catch (err) {
     console.error('[Polidex popup] Scan error:', err);
     setScanState('idle');
-    showStatus('Fehler beim Scannen. Bitte eine Artikelseite öffnen.');
+    const msg = err instanceof Error ? err.message : String(err);
+    if (msg.includes('Could not establish connection') || msg.includes('Receiving end does not exist')) {
+      showStatus('Seite bitte neu laden (F5), dann erneut scannen.');
+    } else {
+      showStatus('Fehler beim Scannen. Bitte eine Artikelseite öffnen.');
+    }
   }
 }
 
@@ -299,7 +390,7 @@ function renderResults(result: ScanResultMessage, caughtIds: Set<string>) {
   emptyState.classList.add('hidden');
   resultsEl.classList.remove('hidden');
 
-  resultsCount.textContent = `${result.candidates.length} gefunden`;
+  resultsCount.textContent = `${result.candidates.length} Sticker gefunden`;
   articleBadge.textContent = result.alreadyScanned ? 'bereits gescannt' : 'neuer Artikel';
   articleBadge.className = `badge ${result.alreadyScanned ? 'seen' : 'new'}`;
 
@@ -323,16 +414,14 @@ function buildCandidateItem(candidate: MatchCandidate, isCaught: boolean): HTMLL
 
   const avatar = document.createElement('div');
   avatar.className = 'candidate-avatar';
+  const initial = p.lastName[0]?.toUpperCase() ?? '?';
+  const factionColor = FACTION_COLORS[p.faction] ?? '#c4a882';
   if (p.imageUrl) {
-    const img = document.createElement('img');
-    img.src = p.imageUrl;
-    img.alt = '';
-    img.width = 40;
-    img.height = 40;
-    img.onerror = () => { avatar.textContent = '\u{1F464}'; };
-    avatar.appendChild(img);
+    setAvatarImage(avatar, p.imageUrl, initial, factionColor + '22', factionColor);
   } else {
-    avatar.textContent = '\u{1F464}';
+    avatar.textContent = initial;
+    avatar.style.background = factionColor + '22';
+    avatar.style.color = factionColor;
   }
 
   const info = document.createElement('div');
@@ -382,12 +471,12 @@ function buildCandidateItem(candidate: MatchCandidate, isCaught: boolean): HTMLL
     const lbl = document.createElement('span');
     lbl.className = 'btn btn-secondary';
     lbl.style.cssText = 'font-size:10px;padding:3px 6px';
-    lbl.textContent = 'GESAMMELT';
+    lbl.textContent = 'EINGEKLEBT';
     actions.appendChild(lbl);
   } else {
     const catchBtn = document.createElement('button');
     catchBtn.className = 'btn btn-catch';
-    catchBtn.textContent = 'SAMMELN!';
+    catchBtn.textContent = 'EINKLEBEN!';
     catchBtn.addEventListener('click', async e => {
       e.stopPropagation();
       await handleCatch(p.id, candidate.inHeadline);
@@ -454,7 +543,7 @@ function markItemCaught(id: string) {
     const lbl = document.createElement('span');
     lbl.className = 'btn btn-secondary';
     lbl.style.cssText = 'font-size:10px;padding:3px 6px';
-    lbl.textContent = 'GESAMMELT';
+    lbl.textContent = 'EINGEKLEBT';
     actions.appendChild(lbl);
   }
   const allCaught = !candidateList.querySelector('.candidate-item:not(.caught)');
@@ -576,10 +665,10 @@ function renderStats(): void {
   const grid = document.createElement('div');
   grid.className = 'stats-overview-grid';
   for (const [k, v] of [
-    ['Gesammelt',      `${dexEntries.length} / ${totalPoliticians}`],
-    ['Gesamt-XP',      String(totalXp)],
-    ['Gesamtartikel',  String(totalArticles)],
-    ['Höchstes Lv.',   String(maxLevel)],
+    ['Sticker',        `${dexEntries.length} / ${totalPoliticians}`],
+    ['Punkte',         String(totalXp)],
+    ['Artikel',        String(totalArticles)],
+    ['Top-Rang',       String(maxLevel)],
   ] as [string, string][]) {
     const cell = document.createElement('div');
     cell.className = 'stats-kv';
@@ -600,7 +689,7 @@ function renderStats(): void {
     20: 'WP20  2021–25',
     21: 'WP21  2025–',
   };
-  const periodsBlock = makeStatsBlock('FORTSCHRITT JE WAHLPERIODE');
+  const periodsBlock = makeStatsBlock('STICKER JE WAHLPERIODE');
   const wpTotals = new Map<number, number>();
   const wpCaught = new Map<number, number>();
   for (const p of allPoliticians) {
@@ -618,7 +707,7 @@ function renderStats(): void {
   statsContent.appendChild(periodsBlock);
 
   // Block C — Medienpräsenz
-  const presenceBlock  = makeStatsBlock('MEDIENPRÄSENZ');
+  const presenceBlock  = makeStatsBlock('STICKER-SELTENHEIT');
   const presenceCounts = new Map<string, number>();
   for (const e of dexEntries) {
     const tier = calcMediaPresence(e.mediaScore);
@@ -632,7 +721,7 @@ function renderStats(): void {
   statsContent.appendChild(presenceBlock);
 
   // Block D — Typenverteilung
-  const typeBlock  = makeStatsBlock('TYPEN');
+  const typeBlock  = makeStatsBlock('RESSORTS');
   const typeCounts = new Map<string, number>();
   for (const e of dexEntries) {
     for (const t of e.types) typeCounts.set(t, (typeCounts.get(t) ?? 0) + 1);
@@ -646,7 +735,7 @@ function renderStats(): void {
   statsContent.appendChild(typeBlock);
 
   // Block E — Sammelaktivität
-  const heatBlock = makeStatsBlock('SAMMELAKTIVITÄT');
+  const heatBlock = makeStatsBlock('LESEAKTIVITÄT');
   heatBlock.appendChild(buildHeatmap());
   statsContent.appendChild(heatBlock);
 }
@@ -691,7 +780,7 @@ function buildHeatmap(): HTMLDivElement {
     const cell  = document.createElement('div');
     const level = count === 0 ? 0 : count === 1 ? 1 : count <= 3 ? 2 : 3;
     cell.className = `heat-cell heat-${level}`;
-    cell.title = `${key}: ${count} gesammelt`;
+    cell.title = `${key}: ${count} Sticker eingeklebt`;
     grid.appendChild(cell);
   }
   return grid;
@@ -795,16 +884,11 @@ function buildDexItem(entry: PokedexEntry): HTMLLIElement {
 
   const avatar = document.createElement('div');
   avatar.className = 'dex-avatar';
+  const dexInitial = entry.lastName[0]?.toUpperCase() ?? '?';
   if (entry.imageUrl) {
-    const img = document.createElement('img');
-    img.src = entry.imageUrl;
-    img.alt = '';
-    img.width = 32;
-    img.height = 32;
-    img.onerror = () => { avatar.textContent = '\u{1F464}'; };
-    avatar.appendChild(img);
+    setAvatarImage(avatar, entry.imageUrl, dexInitial);
   } else {
-    avatar.textContent = '\u{1F464}';
+    avatar.textContent = dexInitial;
   }
 
   const info = document.createElement('div');
@@ -825,7 +909,7 @@ function buildDexItem(entry: PokedexEntry): HTMLLIElement {
   factionSpan.style.color = FACTION_COLORS[entry.faction] ?? 'inherit';
   factionSpan.textContent = entry.faction;
   sub.appendChild(factionSpan);
-  sub.append(` \u00B7 ${entry.articleCount} Artikel`);
+  sub.append(` \u00B7 ${entry.articleCount}\u00D7 gelesen`);
   if ((entry.periodsActive ?? []).length > 0) {
     sub.append(` \u00B7 ${entry.periodsActive.length}\u00A0WP`);
   }
@@ -841,7 +925,7 @@ function buildDexItem(entry: PokedexEntry): HTMLLIElement {
 
   const barWrap = document.createElement('div');
   barWrap.className = 'xp-bar-wrap';
-  barWrap.title = `${entry.xp} XP`;
+  barWrap.title = `${entry.xp} Punkte`;
   const bar = document.createElement('div');
   bar.className = 'xp-bar';
   bar.style.width = `${pct}%`;
@@ -849,7 +933,7 @@ function buildDexItem(entry: PokedexEntry): HTMLLIElement {
 
   const lvl = document.createElement('div');
   lvl.className = 'level-badge';
-  lvl.textContent = `Lv.${entry.level}`;
+  lvl.textContent = `×${entry.articleCount}`;
 
   li.appendChild(avatar);
   li.appendChild(info);
@@ -866,17 +950,7 @@ function buildUncaughtDexItem(p: PoliticianData): HTMLLIElement {
 
   const avatar = document.createElement('div');
   avatar.className = 'dex-avatar';
-  if (p.imageUrl) {
-    const img = document.createElement('img');
-    img.src = p.imageUrl;
-    img.alt = '';
-    img.width = 32;
-    img.height = 32;
-    img.onerror = () => { avatar.textContent = '\u{1F464}'; };
-    avatar.appendChild(img);
-  } else {
-    avatar.textContent = '\u{1F464}';
-  }
+  avatar.textContent = p.lastName[0]?.toUpperCase() ?? '?';
 
   const info = document.createElement('div');
   info.className = 'dex-info';
@@ -919,9 +993,9 @@ function showCandidateDetail(candidate: MatchCandidate) {
     rarity: calcMediaPresence(p.mediaScore),
     periodsActive: p.periodsActive ?? [],
     stats: [
-      { label: 'Treffer-Score', value: String(candidate.score) },
       { label: 'Erwähnungen',   value: String(candidate.mentionCount) },
       { label: 'Schlagzeile',   value: candidate.inHeadline ? 'Ja' : 'Nein' },
+      { label: 'Treffsicherheit', value: String(candidate.score) },
     ],
   });
 }
@@ -935,9 +1009,9 @@ function showDexDetail(entry: PokedexEntry) {
     rarity: calcMediaPresence(entry.mediaScore),
     periodsActive: entry.periodsActive ?? [],
     stats: [
-      { label: 'Level',   value: String(entry.level) },
-      { label: 'XP',      value: String(entry.xp) },
-      { label: 'Artikel', value: String(entry.articleCount) },
+      { label: 'Artikel',  value: String(entry.articleCount) },
+      { label: 'Punkte',   value: String(entry.xp) },
+      { label: 'Rang',     value: String(entry.level) },
     ],
     caughtUrl:   entry.caughtUrl,
     caughtTitle: entry.caughtTitle,
@@ -965,23 +1039,24 @@ interface CardConfig {
 function showCard(cfg: CardConfig) {
   detailCard.textContent = '';
 
+  const cardImgEl = document.createElement('div');
+  cardImgEl.className = 'card-img-placeholder';
+  cardImgEl.textContent = '\u{1F464}';
+  detailCard.appendChild(cardImgEl);
   if (cfg.imageUrl) {
-    const img = document.createElement('img');
-    img.className = 'card-img';
-    img.src = cfg.imageUrl;
-    img.alt = '';
-    img.onerror = () => {
-      const ph = document.createElement('div');
-      ph.className = 'card-img-placeholder';
-      ph.textContent = '\u{1F464}';
-      img.replaceWith(ph);
-    };
-    detailCard.appendChild(img);
-  } else {
-    const ph = document.createElement('div');
-    ph.className = 'card-img-placeholder';
-    ph.textContent = '\u{1F464}';
-    detailCard.appendChild(ph);
+    getCachedImageSrc(cfg.imageUrl).then(src => {
+      const img = document.createElement('img');
+      img.className = 'card-img';
+      img.alt = '';
+      img.onload = () => {
+        if (src.startsWith('blob:')) URL.revokeObjectURL(src);
+        cardImgEl.replaceWith(img);
+      };
+      img.onerror = () => {
+        if (src.startsWith('blob:')) URL.revokeObjectURL(src);
+      };
+      img.src = src;
+    });
   }
 
   const nameEl = document.createElement('div');
@@ -998,7 +1073,7 @@ function showCard(cfg: CardConfig) {
   if (cfg.isArchived) {
     const archivedEl = document.createElement('div');
     archivedEl.className = 'card-archived-badge';
-    archivedEl.textContent = 'Ehemaliger MdB';
+    archivedEl.textContent = 'ehem. MdB';
     detailCard.appendChild(archivedEl);
   }
 
@@ -1061,7 +1136,7 @@ function showCard(cfg: CardConfig) {
 
     const label = document.createElement('span');
     label.className = 'stat-label';
-    label.textContent = 'Gesammelt in ';
+    label.textContent = 'Eingeklebt in ';
     caughtEl.appendChild(label);
 
     const link = document.createElement('a');
@@ -1161,7 +1236,7 @@ async function handleExport() {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `polidex-export-${new Date().toISOString().slice(0, 10)}.json`;
+  a.download = `politi-sammelalbum-export-${new Date().toISOString().slice(0, 10)}.json`;
   a.click();
   URL.revokeObjectURL(url);
 }

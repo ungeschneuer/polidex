@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
-  "name": "Polidex",
-  "version": "0.9.0",
+  "name": "Politi-Sammelalbum",
+  "version": "0.9.1",
   "description": "Sammle Politiker*innen in Nachrichtenartikeln",
   "permissions": [
     "storage",
@@ -9,7 +9,7 @@
     "tabs"
   ],
   "host_permissions": [
-    "https://ungeschneuer.github.io/*"
+    "https://ungeschneuer.github.io/politi-album/*"
   ],
   "background": {
     "service_worker": "background.js",
@@ -21,7 +21,7 @@
   "content_scripts": [
     {
       "matches": [
-        "https://*"
+        "https://*/*"
       ],
       "exclude_matches": [
         "*://*.spd.de/*",

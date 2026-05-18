@@ -66,6 +66,23 @@ function invalidateCache(): void {
 
 let syncInProgress = false;
 
+const SYNC_LOCK_KEY = '_syncLockAt';
+const SYNC_LOCK_TTL_MS = 10 * 60 * 1000;
+
+async function isSyncLocked(): Promise<boolean> {
+  const result = await browser.storage.local.get(SYNC_LOCK_KEY);
+  const lockAt = (result as Record<string, unknown>)[SYNC_LOCK_KEY];
+  return typeof lockAt === 'number' && Date.now() - lockAt < SYNC_LOCK_TTL_MS;
+}
+
+async function setSyncLock(active: boolean): Promise<void> {
+  if (active) {
+    await browser.storage.local.set({ [SYNC_LOCK_KEY]: Date.now() });
+  } else {
+    await browser.storage.local.remove(SYNC_LOCK_KEY);
+  }
+}
+
 // ─── Sync scheduling ──────────────────────────────────────────────────────────
 
 /**
@@ -92,9 +109,9 @@ browser.runtime.onInstalled.addListener(async ({ reason }) => {
     if (bundled && bundled.length > 0) {
       await Store.setPoliticians(bundled);
       invalidateCache();
-      console.log(`[Polidex] Seeded ${bundled.length} politicians from bundled data`);
+      console.log(`[Politi-Sammelalbum] Seeded ${bundled.length} politicians from bundled data`);
     }
-    syncPoliticians(true).catch(err => console.warn('[Polidex] Initial sync failed:', err));
+    syncPoliticians(true).catch(err => console.warn('[Politi-Sammelalbum] Initial sync failed:', err));
     browser.tabs.create({ url: browser.runtime.getURL('welcome.html') });
   }
 
@@ -107,10 +124,10 @@ browser.runtime.onInstalled.addListener(async ({ reason }) => {
     if (bundled && bundled.length > 0) {
       await Store.setPoliticians(bundled);
       invalidateCache();
-      console.log(`[Polidex] Re-applied bundled politicians after update (${bundled.length} entries)`);
+      console.log(`[Politi-Sammelalbum] Re-applied bundled politicians after update (${bundled.length} entries)`);
     }
     // Then pull the freshest data from the server.
-    syncPoliticians(true).catch(err => console.warn('[Polidex] Post-update sync failed:', err));
+    syncPoliticians(true).catch(err => console.warn('[Politi-Sammelalbum] Post-update sync failed:', err));
   }
 
   // Replace any existing sync alarm (including old periodInMinutes-based alarms
@@ -140,7 +157,7 @@ browser.runtime.onMessage.addListener((rawMessage: unknown, sender, sendResponse
     sendResponse(null);
   } else {
     handleMessage(message).then(sendResponse).catch(err => {
-      console.error('[Polidex] Message handler error:', err);
+      console.error('[Politi-Sammelalbum] Message handler error:', err);
       sendResponse({ error: String(err) });
     });
   }
@@ -216,6 +233,7 @@ async function awardXpFromScan(
   const streak = await updateStreak();
   const multiplier = getStreakMultiplier(streak.current);
 
+  let caughtDirty = false;
   for (const candidate of candidates) {
     const id = candidate.politician.id;
     politicianIds.push(id);
@@ -228,8 +246,12 @@ async function awardXpFromScan(
       entry.level = calcLevel(entry.xp);
       entry.articleCount++;
       entry.lastSeenAt = Date.now();
-      await Store.saveCaught(entry);
+      caughtDirty = true;
     }
+  }
+
+  if (caughtDirty) {
+    await Store.setCaught(caught);
   }
 
   await Store.saveArticle({
@@ -283,8 +305,11 @@ async function handleCatch(message: CatchPoliticianMessage) {
 
   const alreadyCaught = await Store.isCaught(politicianId);
   if (alreadyCaught) {
-    const existing = await Store.getCaughtById(politicianId);
-    const data = getPoliticianById(politicianId);
+    const [existing, politicians] = await Promise.all([
+      Store.getCaughtById(politicianId),
+      getPoliticiansCached(),
+    ]);
+    const data = politicians.find(p => p.id === politicianId);
     return {
       type: 'CATCH_RESULT',
       success: false,
@@ -317,8 +342,8 @@ async function handleCatch(message: CatchPoliticianMessage) {
   if (!article) {
     await Store.saveArticle({
       hash: articleHash,
-      url: '',
-      title: '',
+      url: message.articleUrl ?? '',
+      title: message.articleTitle ?? '',
       scannedAt: Date.now(),
       politicianIds: [politicianId],
     });
@@ -512,15 +537,16 @@ async function handleGetGameState(): Promise<GameStateDataMessage> {
 // ─── Sync status ──────────────────────────────────────────────────────────────
 
 async function handleGetSyncStatus() {
-  const [politicians, lastSyncAt] = await Promise.all([
+  const [politicians, lastSyncAt, locked] = await Promise.all([
     getPoliticiansCached(),
     Store.getPoliticiansUpdatedAt(),
+    isSyncLocked(),
   ]);
   return {
     type: 'SYNC_STATUS_DATA',
     politiciansCount: politicians.length,
     lastSyncAt,
-    syncInProgress,
+    syncInProgress: syncInProgress || locked,
   };
 }
 
@@ -535,26 +561,42 @@ async function handleImportCollection(message: ImportCollectionMessage) {
   }
 }
 
+// ─── Image pre-cache ──────────────────────────────────────────────────────────
+
+async function preCacheImages(politicians: PoliticianData[]): Promise<void> {
+  if (typeof caches === 'undefined') return;
+  const cache = await caches.open('politi-album-imgs');
+  const urls = politicians.map(p => p.imageUrl).filter((u): u is string => !!u);
+  for (let i = 0; i < urls.length; i += 8) {
+    await Promise.allSettled(urls.slice(i, i + 8).map(async url => {
+      if (await cache.match(url)) return;
+      const res = await fetch(url, { mode: 'cors', credentials: 'omit' }).catch(() => null);
+      if (res?.ok) await cache.put(url, res);
+    }));
+  }
+}
+
 // ─── Data sync ────────────────────────────────────────────────────────────────
 
 async function syncPoliticians(force = false): Promise<{ synced: number }> {
-  if (syncInProgress) return { synced: 0 };
+  if (syncInProgress || await isSyncLocked()) return { synced: 0 };
 
   if (!force) {
     const lastSync = await Store.getPoliticiansUpdatedAt();
     if (Date.now() - lastSync < POLITICIANS_SYNC_MIN_AGE_MS) {
-      console.log('[Polidex] Data is fresh — skipping sync');
+      console.log('[Politi-Sammelalbum] Data is fresh — skipping sync');
       return { synced: 0 };
     }
   }
 
   syncInProgress = true;
+  await setSyncLock(true);
   try {
     const storedETag = await Store.getPoliticiansETag();
     const result = await fetchPoliticiansFromServer(storedETag);
 
     if (result === null) {
-      console.log('[Polidex] Politicians up to date (304 Not Modified)');
+      console.log('[Politi-Sammelalbum] Politicians up to date (304 Not Modified)');
       await Store.touchPoliticiansUpdatedAt();
       return { synced: 0 };
     }
@@ -567,12 +609,14 @@ async function syncPoliticians(force = false): Promise<{ synced: number }> {
     if (newsDomains) await Store.setNewsDomains(newsDomains);
     if (blockedDomains) await Store.setBlockedDomains(blockedDomains);
 
-    console.log(`[Polidex] Synced ${result.politicians.length} politicians from server`);
+    console.log(`[Politi-Sammelalbum] Synced ${result.politicians.length} politicians from server`);
+    preCacheImages(result.politicians).catch(() => {});
     return { synced: result.politicians.length };
   } catch (err) {
-    console.error('[Polidex] Sync failed:', err);
+    console.error('[Politi-Sammelalbum] Sync failed:', err);
     return { synced: 0 };
   } finally {
     syncInProgress = false;
+    await setSyncLock(false);
   }
 }

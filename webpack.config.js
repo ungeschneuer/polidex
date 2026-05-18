@@ -31,6 +31,11 @@ module.exports = (env, argv) => {
           test: /\.css$/,
           use: [MiniCssExtractPlugin.loader, 'css-loader'],
         },
+        {
+          test: /\.(woff|woff2|ttf|otf|eot)$/,
+          type: 'asset/resource',
+          generator: { filename: 'fonts/[name][ext]' },
+        },
       ],
     },
     resolve: {
@@ -42,7 +47,7 @@ module.exports = (env, argv) => {
     },
     plugins: [
       new webpack.DefinePlugin({
-        __POLIDEX_SERVER_URL__: JSON.stringify(process.env.POLIDEX_SERVER_URL ?? 'https://ungeschneuer.github.io/polidex'),
+        __POLIDEX_SERVER_URL__: JSON.stringify(process.env.POLIDEX_SERVER_URL ?? 'https://ungeschneuer.github.io/politi-album'),
       }),
       new MiniCssExtractPlugin({ filename: '[name].css' }),
       new CopyPlugin({

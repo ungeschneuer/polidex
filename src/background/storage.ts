@@ -69,6 +69,10 @@ export async function saveCaught(entry: CaughtPolitician): Promise<void> {
   await set('caught', caught);
 }
 
+export async function setCaught(caught: Record<string, CaughtPolitician>): Promise<void> {
+  await set('caught', caught);
+}
+
 export async function isCaught(id: string): Promise<boolean> {
   const caught = await getCaught();
   return id in caught;
@@ -153,9 +157,11 @@ export async function setBlockedDomains(domains: string[]): Promise<void> {
 
 /** Returns approximate used bytes and the 5MB quota. */
 export async function getStorageStats(): Promise<{ usedBytes: number; quotaBytes: number }> {
-  const bytesInUse = await storage.local.getBytesInUse?.() ?? 0;
+  const bytesInUse = typeof storage.local.getBytesInUse === 'function'
+    ? await storage.local.getBytesInUse()
+    : undefined;
   return {
-    usedBytes: bytesInUse,
+    usedBytes: bytesInUse ?? 0,
     quotaBytes: 5_242_880,
   };
 }
@@ -194,12 +200,17 @@ export async function importCollection(
   return count;
 }
 
-/** Prunes the oldest articles if storage exceeds 80% of quota. */
+const PRUNE_ARTICLE_COUNT_THRESHOLD = 500;
+
+/** Prunes the oldest articles if storage exceeds 80% of quota (Chrome) or 500 articles (Firefox fallback). */
 export async function pruneOldArticles(): Promise<void> {
   const { usedBytes, quotaBytes } = await getStorageStats();
-  if (usedBytes < quotaBytes * 0.8) return;
-
   const articles = await getArticles();
+
+  const overQuota = usedBytes > 0 && usedBytes >= quotaBytes * 0.8;
+  const overCount = usedBytes === 0 && Object.keys(articles).length >= PRUNE_ARTICLE_COUNT_THRESHOLD;
+  if (!overQuota && !overCount) return;
+
   const sorted = Object.values(articles).sort((a, b) => a.scannedAt - b.scannedAt);
   const toRemove = sorted.slice(0, Math.floor(sorted.length * 0.3));
 

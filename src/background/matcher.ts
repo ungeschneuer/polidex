@@ -63,7 +63,8 @@ function scorePolitician(
   // 1. Full name in body (most reliable signal)
   const fullName = buildFullName(politician);
   const fullNameLower = fullName.toLowerCase();
-  if (bodyLower.includes(fullNameLower)) {
+  const hasFullNameMatch = bodyLower.includes(fullNameLower);
+  if (hasFullNameMatch) {
     score += SCORE_FULL_NAME;
     matchedName = fullName;
     mentionCount = countOccurrences(bodyLower, fullNameLower);
@@ -83,8 +84,9 @@ function scorePolitician(
     score += SCORE_SURNAME_ROLE;
   }
 
-  // 4. Common surname penalty
-  if (politician.isCommonSurname) {
+  // 4. Common surname penalty — only when no full-name match was found.
+  // A full-name match is unambiguous regardless of surname frequency.
+  if (politician.isCommonSurname && !hasFullNameMatch) {
     score += SCORE_COMMON_SURNAME_PENALTY;
   }
 
